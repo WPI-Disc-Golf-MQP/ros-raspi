@@ -12,12 +12,19 @@ class raspi_main:
 
         # --- Subscribers ---
 
+        self.button_b_subscriber = rospy.Subscriber('button_b', String, self.button_b_callback)
+        self.nucleo_response_subscriber = rospy.Subscriber('nucleo_response', String, self.nucleo_response_callback)
+
         # --- Publishers ---
 
-        self.button_b_subscriber = rospy.Subscriber('button_b', String, self.button_b_callback)
+        self.nucleo_ping_publisher = rospy.Publisher('nucleo_ping', String, queue_size=10)
 
     def button_b_callback(self, msg):
-        print("[main]Button B Pressed")
+        print("[main] Button B Pressed")
+        self.nucleo_ping_publisher.publish("a")
+    
+    def nucleo_response_callback(self, msg):
+        print("[main] Nucleo Response Received: " + msg.data)
     
     def run(self):
         """
@@ -26,5 +33,5 @@ class raspi_main:
         rospy.spin()
 
 if __name__ == '__main__':
-    raspi_main = raspi_main()
-    raspi_main.run()
+    main = raspi_main()
+    main.run()
