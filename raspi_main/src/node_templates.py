@@ -4,9 +4,8 @@
 from abc import ABC, abstractmethod
 from enum import Enum
 from threading import Timer
-import time
+from datetime import datetime, timedelta
 from typing import Callable
-from typing_extensions import final
 
 import rospy
 from std_msgs.msg import Int8
@@ -76,48 +75,59 @@ class motion_node(ABC):
         pass
 
 class serial_node(ABC):
-    def __init__(self, NAME:str, STATUS_TOPIC:tuple[str, type]=("",type(None)),
-                  timeout:float=2, 
-                  refresh_rate:float=0.25):
-        self.name = NAME
-        if STATUS_TOPIC == ("", type(None)):
-            STATUS_TOPIC = (NAME.lower() + "_status", Int8)
-        self.last_time:float = 0
-        self.is_online = lambda : self.last_online is not None and (time.time() - self.last_online) < timeout
+    def __init__(self, NAME:str, 
+                 STATUS_TOPIC:"tuple[str, type]"=("",type(None)),
+                 timeout:float=2, 
+                 refresh_rate:float=0.25):
+        self.name = NAME 
+        self.refresh_rate = refresh_rate
+        self.offline_callback = None
+        self.online_callback = None
         self.last_online = False
         self.status = NODE_STATUS.INITIALIZING
-        if STATUS_TOPIC[0] is str and STATUS_TOPIC[0] != "" and STATUS_TOPIC[1] is not type(None):
+        
+        if STATUS_TOPIC == ("", type(None)):
+            STATUS_TOPIC = (NAME.lower() + "_status", Int8)
+        if STATUS_TOPIC[0] != "" and STATUS_TOPIC[1] is not type(None):
             self.watchdog_sub = rospy.Subscriber(*STATUS_TOPIC, self.update)
-        self.refresh_rate = refresh_rate
+
+        self.last_seen = datetime.now() - timedelta(seconds=5)
+        self.is_online = lambda : self.last_seen is not None and \
+            (datetime.now() - self.last_seen) < timedelta(seconds=timeout)
+        
         self.timer = Timer(refresh_rate, self._check_callbacks)
         self.timer.start()
 
+    def update(self, msg):
+        # rospy.loginfo("[" + self.name + "] Status Update: " + str(msg.data) + ", last seen " + str(self.last_online))
+        self.last_seen = datetime.now()
+        try:
+            self.status = NODE_STATUS(msg.data)
+        except:
+            self.status = NODE_STATUS.ERROR
+            rospy.logerr("[" + self.name + "] Invalid status message received: " + str(msg.data))
+        self._check_callbacks()
+
+    def get_status(self) -> NODE_STATUS:
+        return self.status
+    
     def set_offline_callback(self, callback:Callable):
         self.offline_callback = callback
 
     def set_online_callback(self, callback:Callable):
         self.online_callback = callback
 
-    def update(self, msg):
-        self.last_time = time.time()
-        try:
-            self.status = NODE_STATUS[msg.data]
-        except:
-            self.status = NODE_STATUS.ERROR
-            rospy.logerr("[" + self.name + "] Invalid status message received: " + msg.data)
-        self._check_callbacks()
-
-    def get_status(self) -> NODE_STATUS:
-        return self.status
-
     def _check_callbacks(self):
-        if not self.last_online and self.is_online() and self.online_callback is not None:
-            self.online_callback()
-        elif self.last_online and not self.is_online() and self.offline_callback is not None:
-            self.offline_callback()
-
-        self.last_online = self.is_online()
-
+        # rospy.loginfo("last_online: " + str(self.last_online) + ", is_online: "+ str(self.is_online()) + ", online_callback: " + str(type(self.online_callback)) + ", offline_callback: " + str(type(self.offline_callback)))
+        
+        if not self.last_online and self.is_online():
+            rospy.logwarn("[" + self.name + "] Now online")
+            if self.online_callback is not None: self.online_callback()
+        elif self.last_online and not self.is_online():
+            rospy.logerr("[" + self.name + "] Now offline")
+            if self.offline_callback is not None: self.offline_callback()
+            
         if self.timer.is_alive: self.timer.cancel()
         self.timer = Timer(self.refresh_rate, self._check_callbacks)
         self.timer.start()
+        self.last_online = self.is_online()

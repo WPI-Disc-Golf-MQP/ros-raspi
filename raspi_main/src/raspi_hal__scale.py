@@ -22,7 +22,7 @@ DISC_PRESENCE_THRESHOLD = 100 # TODO: Set to lower value in grams
 class hal__scale(serial_node, measure_node):
     def __init__(self, completion_callback:Callable[[float], None]):
         super().__init__("scale")
-        self.weight_sub = rospy.Subscriber(FEEDBACK_TOPIC, Float32, self.weight_update)
+        self.weight_sub = rospy.Subscriber(*FEEDBACK_TOPIC, self.weight_update)
         self.weight = -100000
         self.new_timer = lambda : Timer(MEASUREMENT_DURATION, self._completion_callback)
         self.timer = self.new_timer()
