@@ -6,6 +6,7 @@ from std_msgs.msg import String
 
 from raspi_hal__led_demo import hal__led_demo
 from raspi_hal__scale import hal__scale
+from raspi_hal__main_conveyor import hal__main_conveyor
 from raspi_state_machine import raspi_state_machine as state_machine
 
 from disc_record import *
@@ -19,12 +20,13 @@ class raspi_main:
         # --- HAL (Hardware Abstraction Layer) ---
 
         self.hal__led_demo = hal__led_demo()
-        self.hal__scale = hal__scale(self.hal__scale__complete)
+        self.hal__scale = hal__scale(self.hal_measure_callback)
+        self.hal__main_conveyor = hal__main_conveyor(self.hal_motion_callback)
 
-        self.HALs = [self.hal__led_demo, self.hal__scale]
-        self.HALs_motion = filter(lambda HAL: isinstance(HAL, motion_node), self.HALs)
-        self.HALs_disc_movement = [None] # TODO: Add conveyors and intake/outtake
-        self.HALs_measure = filter(lambda HAL: isinstance(HAL, measure_node), self.HALs)
+        self.HALs: dict[str,serial_node] = {'led':self.hal__led_demo, 'scale':self.hal__scale,
+                                            'main_conveyor':hal__main_conveyor()}
+        self.HALs_motion = filter(lambda HAL: isinstance(HAL, motion_node), self.HALs.values())
+        self.HALs_measure = filter(lambda HAL: isinstance(HAL, measure_node), self.HALs.values())
 
         # --- Subscribers ---
 
@@ -53,7 +55,7 @@ class raspi_main:
             and all([measure_hal.complete() for measure_hal in self.HALs_measure])
     
     def move_discs(self):
-        for motion_hal in self.HALs_disc_movement:
+        for motion_hal in self.HALs_motion:
             motion_hal.start()
     
     def can_start_measurement(self) -> bool:
@@ -67,15 +69,21 @@ class raspi_main:
     def can_idle(self) -> bool:
         return False # TODO: Implement checking for when top disc cue is empty
 
-    def hal__scale__complete(self, weight):
-        print("[main] Scale Measurement Complete, Weight: " + str(weight) + "g")
-        if disc := self.get_disc_by_location(location.MAIN_CONVAYOR__SCALE):
+    def hal_measure_callback(self, node_name:str):
+        node = self.HALs[node_name]
+        rospy.loginfo("* " + node_name " measurement complete, Notified via callback")
+        if type(node) == hal__scale and disc := self.get_disc_by_location(location.MAIN_CONVAYOR__SCALE):
             disc.weight = weight
         self.state_machine.cycle()
+        
+    def hal_motion_callback(self, node_name:str):
+        node = self.HALs[node_name]
+        rospy.loginfo("* " + node_name " motion complete, Notified via callback")
+        self.state_machine.cycle()
 
-
-
-
+    def button_a_callback(self, msg):
+        print("[main] Button A Pressed")
+        self.start_motion()
 
     def button_b_callback(self, msg):
         print("[main] Button B Pressed")

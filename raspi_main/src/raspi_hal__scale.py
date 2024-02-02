@@ -6,10 +6,9 @@ from typing import Callable
 import rospy
 from std_msgs.msg import Int8, Float32, Bool
 
-from node_templates import serial_node, measure_node
+from node_templates import *
 
 FEEDBACK_TOPIC=("scale_feedback__weight", Float32)  # bool
-REQUEST_TOPIC=("scale_request", Int8) # use REQUEST enum
 
 MEASUREMENT_DURATION = 1.5 # seconds
 DISC_PRESENCE_THRESHOLD = 100 # TODO: Set to lower value in grams
@@ -19,42 +18,30 @@ DISC_PRESENCE_THRESHOLD = 100 # TODO: Set to lower value in grams
 
 
 
-class hal__scale(serial_node, measure_node):
-    def __init__(self, completion_callback:Callable[[float], None]):
-        super().__init__("scale")
+class hal__scale(measure_node):
+    def __init__(self, completion_callback:Callable[[str], None]=lambda _: None):
+        super().__init__(NAME="scale", COMPLETION_CALLBACK=completion_callback)
         self.weight_sub = rospy.Subscriber(*FEEDBACK_TOPIC, self.weight_update)
         self.weight = -100000
-        self.new_timer = lambda : Timer(MEASUREMENT_DURATION, self._completion_callback)
-        self.timer = self.new_timer()
-        self.completion_callback = completion_callback
+    
+    def valid_measurement(self) -> bool:
+        return self.weight > DISC_PRESENCE_THRESHOLD
 
     def weight_update(self, msg:Float32):
         self.weight = msg.data
-        if self.weight < DISC_PRESENCE_THRESHOLD:
-            self.timer = self.new_timer()
-    
-    def _completion_callback(self):
-        self.completion_callback(self.get())
     
     def get(self) -> float:
         return self.weight
-    
-    def start(self):
-        self.timer = self.new_timer()
-        self.timer.start()       
         
-    def complete(self) -> bool: # intialized and node online and measurement complete
-        return self.weight != -100000 and self.is_online() and not self.timer.is_alive()
-    
-    def can_start_measurement(self) -> bool:
-        return self.is_online()
+    def complete(self) -> bool:
+        return super().complete() and self.valid_measurement()
     
 if __name__ == '__main__':
     rospy.init_node('hal__scale')
     rospy.loginfo("hal__scale node started")
 
-    def _completion_callback(weight:float):
-        print("* Measurement Complete, Weight: " + str(weight) + "g, notified via callback.")
+    def _completion_callback(_):
+        print("* Measurement Complete, Weight: " + str(_hal__scale.get()) + "g, notified via callback.")
 
     _hal__scale = hal__scale(_completion_callback)
 

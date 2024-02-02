@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from typing import Callable
 from std_msgs.msg import Bool, Int8
 
 import rospy
@@ -7,18 +8,16 @@ import rospy
 from node_templates import serial_node, NODE_STATUS, REQUEST
 
 FEEDBACK_TOPIC=("led_feedback", Bool)
-REQUEST_TOPIC=("led_request", Int8) # use REQUEST enum
 
 class hal__led_demo(serial_node):
-    def __init__(self):
-        super().__init__(NAME:="led")
-        self.request_pub = rospy.Publisher(*REQUEST_TOPIC, queue_size=10)
+    def __init__(self, completion_callback:Callable[[str], None]=lambda _: None):
+        super().__init__(NAME:="led", COMPLETION_CALLBACK=completion_callback)
         self.feedback_sub = rospy.Subscriber(*FEEDBACK_TOPIC, self.feedback_callback)
         self.led_status = False
-        self.request_pub.publish(REQUEST.INITIALIZING)
+        self.request(REQUEST.INITIALIZING)
 
     def set_led(self, state: bool):
-        self.request_pub.publish((REQUEST.REQUEST__STANDARD if state else REQUEST.ONLINE_IDLE).value)
+        self.request(REQUEST.START_MOTION if state else REQUEST.WAITING)
     
     def feedback_callback(self, msg):
         self.led_status = msg.data

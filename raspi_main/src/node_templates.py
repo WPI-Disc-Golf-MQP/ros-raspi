@@ -6,7 +6,6 @@ from enum import Enum
 from threading import Timer
 from datetime import datetime, timedelta
 from typing import Callable
-
 import rospy
 from std_msgs.msg import Int8
 
@@ -29,86 +28,66 @@ class REQUEST(Enum):
     VERIFY__MEASURE_COMPLETE = 5
     REBOOT = 6
 
-
-class measure_node(ABC):
-    @abstractmethod
-    def get(self):
-        pass
-    
-    @abstractmethod
-    def can_start_measurement(self):
-        pass
-    
-    @abstractmethod
-    def start(self):
-        pass
-    
-    @abstractmethod
-    def complete(self) -> bool:
-        pass
-
-class motion_node(ABC):
-    def __init__(self):
-        self.enabled = False
-        pass
-
-    def enable(self):
-        self.enabled = True
-
-    def disable(self):
-        self.enabled = False
-
-    def is_enabled(self) -> bool:
-        return self.enabled
-
-    @abstractmethod
-    def stop(self):
-        pass
-    
-    @abstractmethod
-    def can_start_motion(self):
-        pass
-
-    @abstractmethod
-    def start(self):
-        pass
-    
-    @abstractmethod
-    def complete(self) -> bool:
-        pass
-
 class serial_node(ABC):
     def __init__(self, NAME:str, 
+                 COMPLETION_CALLBACK:Callable[[str], None]=lambda _: None,
                  STATUS_TOPIC:"tuple[str, type]"=("",type(None)),
+                 REQUEST_TOPIC:"tuple[str, type]"=("",type(None)),
                  timeout:float=2, 
                  refresh_rate:float=0.25):
         self.name = NAME 
+        self.timeout = timeout
+        self.completion_callback = COMPLETION_CALLBACK
         self.refresh_rate = refresh_rate
         self.offline_callback = None
         self.online_callback = None
         self.last_online = False
-        self.status = NODE_STATUS.INITIALIZING
+        self.status = NODE_STATUS.INITIALIZING_NODE
         
         if STATUS_TOPIC == ("", type(None)):
             STATUS_TOPIC = (NAME.lower() + "_status", Int8)
+        if REQUEST_TOPIC == ("", type(None)):
+            REQUEST_TOPIC = (NAME.lower() + "_request", Int8)
+            
         if STATUS_TOPIC[0] != "" and STATUS_TOPIC[1] is not type(None):
             self.watchdog_sub = rospy.Subscriber(*STATUS_TOPIC, self.update)
+        if REQUEST_TOPIC[0] != "" and REQUEST_TOPIC[1] is not type(None):
+            self.request_pub = rospy.Publisher(*REQUEST_TOPIC, queue_size=10)
 
         self.last_seen = datetime.now() - timedelta(seconds=5)
+        self.last_motion_complete = datetime.now() - timedelta(seconds=5)
+        self.last_measure_complete = datetime.now() - timedelta(seconds=5)
         self.is_online = lambda : self.last_seen is not None and \
             (datetime.now() - self.last_seen) < timedelta(seconds=timeout)
         
         self.timer = Timer(refresh_rate, self._check_callbacks)
         self.timer.start()
+        
+        self.request(REQUEST.INITIALIZING)
+    
+    def request(self, request:REQUEST):
+        self.request_pub.publish(request.value)
+        self.last_request = request
 
     def update(self, msg):
         # rospy.loginfo("[" + self.name + "] Status Update: " + str(msg.data) + ", last seen " + str(self.last_online))
         self.last_seen = datetime.now()
         try:
-            self.status = NODE_STATUS(msg.data)
+            new_status = NODE_STATUS(msg.data)
         except:
-            self.status = NODE_STATUS.ERROR
+            new_status = NODE_STATUS.IDLE
             rospy.logerr("[" + self.name + "] Invalid status message received: " + str(msg.data))
+            
+        if new_status != self.status:
+            rospy.loginfo("[" + self.name + "] Status Change: " + str(self.status) + " -> " + str(new_status))
+            self.status = new_status
+            if self.status == NODE_STATUS.MOTION_COMPLETE:
+                self.last_motion_complete = datetime.now()
+                if self.completion_callback is not None: self.completion_callback(self.name)
+            elif self.status == NODE_STATUS.MEASURE_COMPLETE:
+                self.last_measure_complete = datetime.now()
+                if self.completion_callback is not None: self.completion_callback(self.name)
+            
         self._check_callbacks()
 
     def get_status(self) -> NODE_STATUS:
@@ -134,3 +113,49 @@ class serial_node(ABC):
         self.timer = Timer(self.refresh_rate, self._check_callbacks)
         self.timer.start()
         self.last_online = self.is_online()
+    
+
+class measure_node(serial_node):
+    @abstractmethod
+    def get(self):
+        pass
+    
+    @abstractmethod
+    def valid_measurement(self) -> bool:
+        pass
+    
+    def start(self):
+        self.request(REQUEST.START_MEASURE)
+    
+    def complete(self) -> bool:
+        return self.verify_measure_complete()
+    
+    def ready(self) -> bool:
+        return self.status == NODE_STATUS.IDLE
+    
+    def verify_measure_complete(self) -> bool:
+        if (self.status != NODE_STATUS.MEASURE_IN_PROGRESS and 
+            (datetime.now() - self.last_measure_complete) > timedelta(seconds=self.timeout)):
+            self.request(REQUEST.VERIFY__MEASURE_COMPLETE)
+            return False
+        return self.status == NODE_STATUS.MEASURE_COMPLETE and self.valid_measurement()
+
+class motion_node(serial_node):
+    def stop(self):
+        self.request(REQUEST.WAITING)
+        
+    def complete(self) -> bool:
+        return self.verify_motion_complete()
+    
+    def ready(self) -> bool:
+        return self.status == NODE_STATUS.IDLE
+
+    def start(self):
+        self.request(REQUEST.START_MOTION)
+    
+    def verify_motion_complete(self) -> bool:
+        if (self.status != NODE_STATUS.MOTION_IN_PROGRESS and
+            (datetime.now() - self.last_motion_complete) > timedelta(seconds=self.timeout)):
+            self.request(REQUEST.VERIFY__MOTION_COMPLETE)
+            return False
+        return self.status == NODE_STATUS.MOTION_COMPLETE
