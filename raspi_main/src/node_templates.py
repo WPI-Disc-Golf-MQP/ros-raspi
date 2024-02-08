@@ -158,4 +158,4 @@ class motion_node(serial_node):
             (datetime.now() - self.last_motion_complete) > timedelta(seconds=self.timeout)):
             self.request(REQUEST.VERIFY__MOTION_COMPLETE)
             return False
-        return self.status == NODE_STATUS.MOTION_COMPLETE
+        return datetime.now() - self.last_motion_complete < timedelta(seconds=self.timeout)

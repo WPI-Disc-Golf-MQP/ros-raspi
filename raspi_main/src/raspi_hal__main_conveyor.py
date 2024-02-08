@@ -18,7 +18,7 @@ FEEDBACK_TOPIC=("module_b_feedback__conveyor", Int8)  # bool
 
 class hal__main_conveyor(motion_node):
     def __init__(self, completion_callback:Callable[[str], None]=lambda _: None):
-        super().__init__(NAME="main_conveyor", COMPLETION_CALLBACK=completion_callback)
+        super().__init__(NAME="module_b", COMPLETION_CALLBACK=completion_callback)
         self.state_sub = rospy.Subscriber(*FEEDBACK_TOPIC, self.state_update)
         self.state:CONVEYOR_STATE = CONVEYOR_STATE.CONVEYOR_IDLE
 
