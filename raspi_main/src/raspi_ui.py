@@ -30,7 +30,7 @@ class ui:
         main_frame.grid(row=0,  column=1, padx=5,pady=5)
 
         title = ctk.CTkLabel(main_frame, text="Disc Inventory Demo",font=ctk.CTkFont(size=24, weight="bold"))
-        title.grid(row=0, column=0, padx=5, pady=15)
+        title.grid(row=0, column=1, padx=5, pady=15)
         
         #self.publishers = []
         self.buttons = []
@@ -42,13 +42,13 @@ class ui:
             button.grid(row=int(i/3)+2,  column=i%3, padx=5, pady=5)
         
         self.scale_weight = ctk.CTkLabel(main_frame, text="Weight: 0g",font=ctk.CTkFont(size=24, weight="bold"))
-        self.scale_weight.grid(row=6, column=0, padx=5, pady=15)
+        self.scale_weight.grid(row=6, column=1, padx=5, pady=15)
         self.scale_sub = rospy.Subscriber('module_b_feedback__weight', Float32, self.scale_callback)
         
         self.app.mainloop()
 
     def scale_callback(self, msg:Float32):
-        self.scale_weight.configure(text="Weight: " + str(msg.data) + "g", require_redraw=True)
+        self.scale_weight.configure(text="Weight: " + str(round(msg.data,3)) + "g", require_redraw=True)
         print("Weight: " + str(msg.data) + "g")
         
 if __name__ == '__main__':
