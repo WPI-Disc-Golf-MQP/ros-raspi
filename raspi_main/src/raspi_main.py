@@ -1,16 +1,28 @@
 #!/usr/bin/env python3
 
 
+from typing import Iterable
 import rospy
 from std_msgs.msg import String
 
 from raspi_hal__led_demo import hal__led_demo
-from raspi_hal__scale import hal__scale
+#from raspi_hal__scale import hal__scale
 from raspi_hal__main_conveyor import hal__main_conveyor
-from raspi_state_machine import raspi_state_machine as state_machine
+from raspi_hal__intake import hal__intake
 
 from disc_record import *
 from node_templates import *
+from ui_constants import UIConstants
+
+class PROCESS_STATE(Enum):
+    INIT = 0,
+    MEASURING = 1,
+    MOVING_OUTTAKE_TO_BOX = 2,
+    MOVING_MAIN_CONVEYOR = 3,
+    MOVING_INTAKE = 4,
+    MOVING_TOP_CONVEYOR = 5,
+    IDLE = 6
+MOTION_STATES = [PROCESS_STATE.MOVING_OUTTAKE_TO_BOX, PROCESS_STATE.MOVING_MAIN_CONVEYOR, PROCESS_STATE.MOVING_INTAKE, PROCESS_STATE.MOVING_TOP_CONVEYOR]
 
 class raspi_main:
     def __init__(self):
@@ -20,22 +32,22 @@ class raspi_main:
         # --- HAL (Hardware Abstraction Layer) ---
 
         self.hal__led_demo = hal__led_demo()
-        self.hal__scale = hal__scale(self.hal_measure_callback)
+        #self.hal__scale = hal__scale(self.hal_measure_callback)
         self.hal__main_conveyor = hal__main_conveyor(self.hal_motion_callback)
+        self.hal__intake = hal__intake(self.hal_motion_callback)
 
-        self.HALs: dict[str,serial_node] = {'led':self.hal__led_demo, 'scale':self.hal__scale,
-                                            'main_conveyor':hal__main_conveyor()}
-        self.HALs_motion = filter(lambda HAL: isinstance(HAL, motion_node), self.HALs.values())
-        self.HALs_measure = filter(lambda HAL: isinstance(HAL, measure_node), self.HALs.values())
+        self.HALs_motion: dict[str,motion_node] = {
+            'main_conveyor':self.hal__main_conveyor, 
+            'intake':self.hal__intake}
+        self.HALs_measure: dict[str,measure_node] = {} #= {'scale':self.hal__scale}
+        self.HALs: dict[str,serial_node] = {**self.HALs_motion, **self.HALs_measure}
 
         # --- Subscribers ---
 
-        self.button_b_subscriber = rospy.Subscriber('button_b', String, self.button_b_callback)
-        self.nucleo_response_subscriber = rospy.Subscriber('nucleo_response', String, self.nucleo_response_callback)
+        self.button_b_subscriber = rospy.Subscriber('ui_button', String, self.ui_callback)
 
         # --- Publishers ---
 
-        self.nucleo_ping_publisher = rospy.Publisher('nucleo_ping', String, queue_size=10)
 
         # --- Discs ---
 
@@ -44,51 +56,73 @@ class raspi_main:
         self.get_disc_by_location = lambda location : next((disc for disc in self.discs if disc.location == location), None)
 
         # --- State Machine ---
+        
+        self.state = PROCESS_STATE.INIT
 
-        self.state_machine = state_machine(self.can_move_discs, self.move_discs, self.can_start_measurement, self.start_measurement, self.can_idle)
-        self.state = lambda : self.state_machine.current_state
+        #self.state_machine = state_machine(self.can_move_discs, self.move_discs, self.can_start_measurement, self.start_measurement, self.can_idle)
+        #self.state = lambda : self.state_machine.current_state
         #self.states = Enum("init", "moving", "measuring", "idle")
         #self.state = self.states.init
 
+    def check_state_transition(self):
+        pass
+            
+    
     def can_move_discs(self) -> bool:
-        return all([motion_hal.can_start_motion() for motion_hal in self.HALs_motion]) \
-            and all([measure_hal.complete() for measure_hal in self.HALs_measure])
+        return all([motion_hal.ready() for motion_hal in self.HALs_motion.values()]) \
+            and all([measure_hal.complete() for measure_hal in self.HALs_measure.values()])
     
     def move_discs(self):
-        for motion_hal in self.HALs_motion:
+        for motion_hal in self.HALs_motion.values():
             motion_hal.start()
     
     def can_start_measurement(self) -> bool:
-        return all([measure_hal.can_start_measurement() for measure_hal in self.HALs_measure]) \
-            and all([motion_hal.complete() for motion_hal in self.HALs_motion])
+        return all([measure_hal.ready() for measure_hal in self.HALs_measure.values()]) \
+            and all([motion_hal.complete() for motion_hal in self.HALs_motion.values()])
     
     def start_measurement(self):
-        for measure_hal in self.HALs_measure:
+        for measure_hal in self.HALs_measure.values():
             measure_hal.start()
     
     def can_idle(self) -> bool:
         return False # TODO: Implement checking for when top disc cue is empty
 
     def hal_measure_callback(self, node_name:str):
-        node = self.HALs[node_name]
-        rospy.loginfo("* " + node_name " measurement complete, Notified via callback")
-        if type(node) == hal__scale and disc := self.get_disc_by_location(location.MAIN_CONVAYOR__SCALE):
-            disc.weight = weight
-        self.state_machine.cycle()
+        try:
+            node = self.HALs_measure[node_name]
+        except KeyError:
+            rospy.logerr("Measurement complete callback received from unknown node: " + node_name)
+            return
+        rospy.loginfo("* " + node_name + " measurement complete, Notified via callback")
+        # if type(node) == hal__scale and (disc := self.get_disc_by_location(location.MAIN_CONVAYOR__SCALE)):
+        #     disc.weight = self._hal__scale.get()
+        self.check_state_transition()
         
     def hal_motion_callback(self, node_name:str):
         node = self.HALs[node_name]
-        rospy.loginfo("* " + node_name " motion complete, Notified via callback")
-        self.state_machine.cycle()
+        rospy.loginfo("* " + node_name + " motion complete, Notified via callback")
+        self.check_state_transition()
 
-    def button_a_callback(self, msg):
-        print("[main] Button A Pressed")
-        self.start_motion()
-
-    def button_b_callback(self, msg):
-        print("[main] Button B Pressed")
-        self.nucleo_ping_publisher.publish("a")
-        self.hal__scale.start()
+    def ui_callback(self, btn:String):
+        print("[main] UI Button " + btn.data + " Pressed")
+        if btn.data == UIConstants.CONVEYOR_START:
+            if not self.can_move_discs():
+                rospy.logwarn("Cannot move conveyor, not all nodes are ready")
+                return
+            self.hal__main_conveyor.start()
+        elif btn.data == UIConstants.MEASURE_START:
+            if not self.can_start_measurement():
+                rospy.logwarn("Cannot start measurement, not all nodes are ready")
+                return
+            self.start_measurement()
+        elif btn.data == UIConstants.MOTION_START:
+            if not self.can_move_discs():
+                rospy.logwarn("Cannot move discs, not all nodes are ready")
+                return
+            self.move_discs()
+        elif btn.data == UIConstants.HOME_ALL or btn.data == UIConstants.STOP:
+            for hal in self.HALs.values():
+                hal.request(REQUEST.WAITING)
     
     
     def nucleo_response_callback(self, msg):

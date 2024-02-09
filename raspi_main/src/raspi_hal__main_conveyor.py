@@ -25,7 +25,7 @@ class hal__main_conveyor(motion_node):
     def state_update(self, msg:Int8):
         self.state = CONVEYOR_STATE(msg.data)
     
-    def get(self) -> int:
+    def get_state(self) -> int:
         return self.state.value
     
 if __name__ == '__main__':
@@ -33,7 +33,7 @@ if __name__ == '__main__':
     rospy.loginfo("hal__main_conveyor node started")
 
     def _completion_callback(_):
-        print("* Movement Complete, State: " + str(_hal__main_conveyor.get()) + ", notified via callback.")
+        print("* Movement Complete, State: " + str(_hal__main_conveyor.get_state()) + ", notified via callback.")
 
     _hal__main_conveyor = hal__main_conveyor(_completion_callback)
 
@@ -44,5 +44,5 @@ if __name__ == '__main__':
             print("New Motion Started")
         print("+ Node Online" if _hal__main_conveyor.is_online() else "- Node Offline")
         print("+ Motion Complete" if _hal__main_conveyor.complete() else "- Measurement Incomplete")
-        print("| State: " + str(_hal__main_conveyor.get()))
+        print("| State: " + str(_hal__main_conveyor.get_state()))
         rospy.sleep(1)

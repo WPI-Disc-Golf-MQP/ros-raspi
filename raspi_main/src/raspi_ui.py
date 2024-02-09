@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 
+from functools import partial
 import rospy
 import customtkinter as ctk
 import tkinter as tk
 from tkinter import ttk
+from ui_constants import UIConstants
 
-from std_msgs.msg import String
+from std_msgs.msg import String, Empty
 
 class ui:
     def __init__(self):
@@ -13,14 +15,13 @@ class ui:
         rospy.loginfo("raspi_ui node started")
 
         #ros_service_test = rospy.ServiceProxy('ui_service_test', )
-        self.ros_publish_test = rospy.Publisher('button_b', String, queue_size=10)
-        self.ros_publish_test.publish("Hello World")
+        self.ui_pub = rospy.Publisher('ui_button', String, queue_size=10)
 
         ctk.set_appearance_mode("Light")
         #ctk.set_default_color_theme("blue")
 
         self.app = ctk.CTk()
-        self.app.title("ROS with Nucleo Demo")
+        self.app.title("Disc Inventory Demo")
 
         style = ttk.Style()
         style.theme_use("clam")
@@ -28,17 +29,18 @@ class ui:
         main_frame  = ctk.CTkFrame(self.app)
         main_frame.grid(row=0,  column=0, columnspan=2, padx=5,pady=5)
 
-        def callback__button_b():
-            self.ros_publish_test.publish("Hello World")
-            print("Button B Pressed")
-
-        title = ctk.CTkLabel(main_frame, text="ROS Nucleo Demo",font=ctk.CTkFont(size=24, weight="bold"))
-        title.grid(row=0, column=1)
-        #button_b = ctk.CTkButton(main_frame, text="Publish Test", command=lambda : self.ros_publish_test.publish("Hello World"))
-        button_b = ctk.CTkButton(main_frame, text="Publish Test", command=callback__button_b)
-        button_b.grid(row=1,  column=0)
-        #button_c = ctk.CTkButton(main_frame, text="Service Test", command=lambda : ros_service_test.publish("Hello World"))
-        #button_c.grid(row=1, column=2)
+        title = ctk.CTkLabel(main_frame, text="Disc Inventory Demo",font=ctk.CTkFont(size=24, weight="bold"))
+        title.grid(row=0, column=0)
+        
+        #self.publishers = []
+        self.buttons = []
+        
+        for i in range(len(UIConstants)):
+            pub_name = str(UIConstants._member_names_[i])
+            #self.publishers.append(rospy.Publisher(pub_name, String, queue_size=10))
+            self.buttons.append(button := ctk.CTkButton(main_frame, text=pub_name, command=partial(self.ui_pub.publish,pub_name)))
+            button.grid(row=i+2,  column=0)
+        
 
     def run(self):
         """
@@ -47,5 +49,5 @@ class ui:
         self.app.mainloop()
         
 if __name__ == '__main__':
-    ui = ui()
-    ui.run()
+    _ui = ui()
+    _ui.run()
