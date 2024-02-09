@@ -13,12 +13,12 @@ class INTAKE_STATE(Enum):
     INTAKE_WAITING_FOR_DISC = 2
     INTAKE_RECIEVING = 3
 
-FEEDBACK_TOPIC=("module_b_feedback__intake_state", Int8)  # bool
+FEEDBACK_TOPIC=("module_a_feedback__intake_state", Int8)  # bool
 
 
 class hal__intake(motion_node):
     def __init__(self, completion_callback:Callable[[str], None]=lambda _: None):
-        super().__init__(NAME="module_b", COMPLETION_CALLBACK=completion_callback)
+        super().__init__(NAME="module_a", COMPLETION_CALLBACK=completion_callback)
         self.state_sub = rospy.Subscriber(*FEEDBACK_TOPIC, self.state_update)
         self.state:INTAKE_STATE = INTAKE_STATE.INTAKE_IDLE
 

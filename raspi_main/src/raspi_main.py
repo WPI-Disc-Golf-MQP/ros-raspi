@@ -99,7 +99,11 @@ class raspi_main:
         self.check_state_transition()
         
     def hal_motion_callback(self, node_name:str):
-        node = self.HALs[node_name]
+        try:
+            node = self.HALs_motion[node_name]
+        except KeyError:
+            rospy.logerr("Motion complete callback received from unknown node: " + node_name)
+            return
         rospy.loginfo("* " + node_name + " motion complete, Notified via callback")
         self.check_state_transition()
 
@@ -110,15 +114,20 @@ class raspi_main:
             #     rospy.logwarn("Cannot move conveyor, not all nodes are ready")
             #     return
             self.hal__main_conveyor.start()
+        elif btn.data == UIConstants.INTAKE_START.name:
+            # if not self.can_move_discs():
+            #     rospy.logwarn("Cannot move intake, not all nodes are ready")
+            #     return
+            self.hal__intake.start()
         elif btn.data == UIConstants.MEASURE_START.name:
             # if not self.can_start_measurement():
             #     rospy.logwarn("Cannot start measurement, not all nodes are ready")
             #     return
             self.start_measurement()
         elif btn.data == UIConstants.MOTION_START.name:
-            if not self.can_move_discs():
-                rospy.logwarn("Cannot move discs, not all nodes are ready")
-                return
+            # if not self.can_move_discs():
+            #     rospy.logwarn("Cannot move discs, not all nodes are ready")
+            #     return
             self.move_discs()
         elif btn.data == UIConstants.HOME_ALL.name or btn.data == UIConstants.STOP.name:
             for hal in self.HALs.values():

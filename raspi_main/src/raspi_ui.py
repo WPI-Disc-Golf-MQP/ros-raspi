@@ -42,7 +42,7 @@ class ui:
             button.grid(row=int(i/3)+2,  column=i%3, padx=5, pady=5)
         
         self.scale_weight = ctk.CTkLabel(main_frame, text="Weight: 0g",font=ctk.CTkFont(size=24, weight="bold"))
-        self.scale_weight.grid(row=4, column=0, padx=5, pady=15)
+        self.scale_weight.grid(row=6, column=0, padx=5, pady=15)
         self.scale_sub = rospy.Subscriber('module_b_feedback__weight', Float32, self.scale_callback)
         
         self.app.mainloop()
@@ -50,12 +50,6 @@ class ui:
     def scale_callback(self, msg:Float32):
         self.scale_weight.configure(text="Weight: " + str(msg.data) + "g", require_redraw=True)
         print("Weight: " + str(msg.data) + "g")
-    
-    def run(self):
-        """
-        Runs the node until Ctrl-C is pressed.
-        """
-        rospy.spin()
         
 if __name__ == '__main__':
     _ui = ui()
