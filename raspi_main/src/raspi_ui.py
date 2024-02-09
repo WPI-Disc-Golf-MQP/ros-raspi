@@ -27,10 +27,10 @@ class ui:
         style.theme_use("clam")
 
         main_frame  = ctk.CTkFrame(self.app)
-        main_frame.grid(row=0,  column=0, columnspan=2, padx=5,pady=5)
+        main_frame.grid(row=0,  column=1, padx=5,pady=5)
 
         title = ctk.CTkLabel(main_frame, text="Disc Inventory Demo",font=ctk.CTkFont(size=24, weight="bold"))
-        title.grid(row=0, column=0)
+        title.grid(row=0, column=0, padx=5, pady=15)
         
         #self.publishers = []
         self.buttons = []
@@ -38,8 +38,8 @@ class ui:
         for i in range(len(UIConstants)):
             pub_name = str(UIConstants._member_names_[i])
             #self.publishers.append(rospy.Publisher(pub_name, String, queue_size=10))
-            self.buttons.append(button := ctk.CTkButton(main_frame, text=pub_name, command=partial(self.ui_pub.publish,pub_name)))
-            button.grid(row=i+2,  column=0)
+            self.buttons.append(button := ctk.CTkButton(main_frame, text=pub_name.replace('_'," "), command=partial(self.ui_pub.publish,pub_name),width=300,height=100,font=ctk.CTkFont(size=24)))
+            button.grid(row=int(i/3)+2,  column=i%3, padx=5, pady=5)
         
 
     def run(self):
