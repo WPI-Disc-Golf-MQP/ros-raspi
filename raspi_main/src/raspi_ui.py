@@ -7,7 +7,7 @@ import tkinter as tk
 from tkinter import ttk
 from ui_constants import UIConstants
 
-from std_msgs.msg import String, Empty
+from std_msgs.msg import String, Empty, Float32
 
 class ui:
     def __init__(self):
@@ -16,7 +16,7 @@ class ui:
 
         #ros_service_test = rospy.ServiceProxy('ui_service_test', )
         self.ui_pub = rospy.Publisher('ui_button', String, queue_size=10)
-
+        
         ctk.set_appearance_mode("Light")
         #ctk.set_default_color_theme("blue")
 
@@ -41,13 +41,22 @@ class ui:
             self.buttons.append(button := ctk.CTkButton(main_frame, text=pub_name.replace('_'," "), command=partial(self.ui_pub.publish,pub_name),width=300,height=100,font=ctk.CTkFont(size=24)))
             button.grid(row=int(i/3)+2,  column=i%3, padx=5, pady=5)
         
+        self.scale_weight = ctk.CTkLabel(main_frame, text="Weight: 0g",font=ctk.CTkFont(size=24, weight="bold"))
+        self.scale_weight.grid(row=4, column=0, padx=5, pady=15)
+        self.scale_sub = rospy.Subscriber('module_b_feedback__weight', Float32, self.scale_callback)
+        
+        self.app.mainloop()
 
+    def scale_callback(self, msg:Float32):
+        self.scale_weight.configure(text="Weight: " + str(msg.data) + "g", require_redraw=True)
+        print("Weight: " + str(msg.data) + "g")
+    
     def run(self):
         """
         Runs the node until Ctrl-C is pressed.
         """
-        self.app.mainloop()
+        rospy.spin()
         
 if __name__ == '__main__':
     _ui = ui()
-    _ui.run()
+    

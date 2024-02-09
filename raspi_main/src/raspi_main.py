@@ -6,7 +6,7 @@ import rospy
 from std_msgs.msg import String
 
 from raspi_hal__led_demo import hal__led_demo
-#from raspi_hal__scale import hal__scale
+from raspi_hal__scale import hal__scale
 from raspi_hal__main_conveyor import hal__main_conveyor
 from raspi_hal__intake import hal__intake
 
@@ -32,14 +32,14 @@ class raspi_main:
         # --- HAL (Hardware Abstraction Layer) ---
 
         self.hal__led_demo = hal__led_demo()
-        #self.hal__scale = hal__scale(self.hal_measure_callback)
+        self.hal__scale = hal__scale(self.hal_measure_callback)
         self.hal__main_conveyor = hal__main_conveyor(self.hal_motion_callback)
         self.hal__intake = hal__intake(self.hal_motion_callback)
 
         self.HALs_motion: dict[str,motion_node] = {
             'main_conveyor':self.hal__main_conveyor, 
             'intake':self.hal__intake}
-        self.HALs_measure: dict[str,measure_node] = {} #= {'scale':self.hal__scale}
+        self.HALs_measure: dict[str,measure_node] = {'scale':self.hal__scale}
         self.HALs: dict[str,serial_node] = {**self.HALs_motion, **self.HALs_measure}
 
         # --- Subscribers ---
@@ -111,9 +111,9 @@ class raspi_main:
             #     return
             self.hal__main_conveyor.start()
         elif btn.data == UIConstants.MEASURE_START.name:
-            if not self.can_start_measurement():
-                rospy.logwarn("Cannot start measurement, not all nodes are ready")
-                return
+            # if not self.can_start_measurement():
+            #     rospy.logwarn("Cannot start measurement, not all nodes are ready")
+            #     return
             self.start_measurement()
         elif btn.data == UIConstants.MOTION_START.name:
             if not self.can_move_discs():
