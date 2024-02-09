@@ -104,23 +104,23 @@ class raspi_main:
         self.check_state_transition()
 
     def ui_callback(self, btn:String):
-        print("[main] UI Button " + btn.data + " Pressed")
-        if btn.data == UIConstants.CONVEYOR_START:
-            if not self.can_move_discs():
-                rospy.logwarn("Cannot move conveyor, not all nodes are ready")
-                return
+        rospy.loginfo("[main] UI Button " + btn.data + " Pressed")
+        if btn.data == UIConstants.CONVEYOR_START.name:
+            # if not self.can_move_discs():
+            #     rospy.logwarn("Cannot move conveyor, not all nodes are ready")
+            #     return
             self.hal__main_conveyor.start()
-        elif btn.data == UIConstants.MEASURE_START:
+        elif btn.data == UIConstants.MEASURE_START.name:
             if not self.can_start_measurement():
                 rospy.logwarn("Cannot start measurement, not all nodes are ready")
                 return
             self.start_measurement()
-        elif btn.data == UIConstants.MOTION_START:
+        elif btn.data == UIConstants.MOTION_START.name:
             if not self.can_move_discs():
                 rospy.logwarn("Cannot move discs, not all nodes are ready")
                 return
             self.move_discs()
-        elif btn.data == UIConstants.HOME_ALL or btn.data == UIConstants.STOP:
+        elif btn.data == UIConstants.HOME_ALL.name or btn.data == UIConstants.STOP.name:
             for hal in self.HALs.values():
                 hal.request(REQUEST.WAITING)
     

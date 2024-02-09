@@ -126,6 +126,7 @@ class measure_node(serial_node):
     
     def start(self):
         self.request(REQUEST.START_MEASURE)
+        rospy.loginfo("[" + self.name + "] Measure Started")
     
     def complete(self) -> bool:
         return self.verify_measure_complete()
@@ -152,6 +153,7 @@ class motion_node(serial_node):
 
     def start(self):
         self.request(REQUEST.START_MOTION)
+        rospy.loginfo("[" + self.name + "] Motion Started")
     
     def verify_motion_complete(self) -> bool:
         if (self.status != NODE_STATUS.MOTION_IN_PROGRESS and
