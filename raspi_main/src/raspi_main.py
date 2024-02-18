@@ -64,6 +64,18 @@ class raspi_main:
         #self.states = Enum("init", "moving", "measuring", "idle")
         #self.state = self.states.init
 
+
+    def move_everything(self): ## written by matt for testing the intake module 
+        # - move the outtake 
+        # - move the conveyor
+        self.hal__main_conveyor.start()
+
+        # - move the intake (because we know that)
+        self.hal__intake.start() 
+
+
+
+
     def check_state_transition(self):
         pass
             
@@ -72,6 +84,8 @@ class raspi_main:
         return all([motion_hal.ready() for motion_hal in self.HALs_motion.values()]) \
             and all([measure_hal.complete() for measure_hal in self.HALs_measure.values()])
     
+
+    # this function does not take into account that the main conveyor has to complete before the intake is called. Replaced with move_everything()
     def move_discs(self):
         for motion_hal in self.HALs_motion.values():
             motion_hal.start()
@@ -132,6 +146,8 @@ class raspi_main:
         elif btn.data == UIConstants.HOME_ALL.name or btn.data == UIConstants.STOP.name:
             for hal in self.HALs.values():
                 hal.request(REQUEST.WAITING)
+        elif btn.data == UIConstants.MOVE_EVERYTHING.name: 
+            self.move_everything()
     
     
     def nucleo_response_callback(self, msg):
