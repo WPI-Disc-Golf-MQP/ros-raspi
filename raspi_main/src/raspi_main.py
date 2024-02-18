@@ -9,6 +9,7 @@ from raspi_hal__led_demo import hal__led_demo
 from raspi_hal__scale import hal__scale
 from raspi_hal__main_conveyor import hal__main_conveyor
 from raspi_hal__intake import hal__intake
+from raspi_turntable import hal__turntable
 
 from disc_record import *
 from node_templates import *
@@ -35,6 +36,7 @@ class raspi_main:
         self.hal__scale = hal__scale(self.hal_measure_callback)
         self.hal__main_conveyor = hal__main_conveyor(self.hal_motion_callback)
         self.hal__intake = hal__intake(self.hal_motion_callback)
+        self.hal_turntable = hal__turntable(self.hal_measure_callback)
 
         self.HALs_motion: dict[str,motion_node] = {
             'main_conveyor':self.hal__main_conveyor, 
@@ -68,10 +70,11 @@ class raspi_main:
     def move_everything(self): ## written by matt for testing the intake module 
         # - move the outtake 
         # - move the conveyor
-        self.hal__main_conveyor.start()
+        # self.hal__main_conveyor.start()
 
-        # - move the intake (because we know that)
-        self.hal__intake.start() 
+        # # - move the intake (because we know that)
+        # self.hal__intake.start() 
+        self.hal_turntable.picture_disc("Test", "testDisc")
 
 
 
