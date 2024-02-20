@@ -34,8 +34,8 @@ class raspi_main:
 
         self.hal__led_demo = hal__led_demo()
         self.hal__scale = hal__scale(self.hal_measure_callback)
-        self.hal__main_conveyor = hal__main_conveyor(self.hal_motion_callback)
         self.hal__intake = hal__intake(self.hal_motion_callback)
+        self.hal__main_conveyor = hal__main_conveyor(self.hal_motion_callback, self.hal__intake.start)
         self.hal_turntable = hal__turntable(self.hal_measure_callback)
 
         self.HALs_motion: dict[str,motion_node] = {
@@ -67,10 +67,13 @@ class raspi_main:
         #self.state = self.states.init
 
 
+    def start_intake(self):
+
     def move_everything(self): ## written by matt for testing the intake module 
         # - move the outtake 
         # - move the conveyor
         # self.hal__main_conveyor.start()
+        
 
         # # - move the intake (because we know that)
         # self.hal__intake.start() 
@@ -105,14 +108,20 @@ class raspi_main:
         return False # TODO: Implement checking for when top disc cue is empty
 
     def hal_measure_callback(self, node_name:str):
+
+        # understanding the node
         try:
             node = self.HALs_measure[node_name]
         except KeyError:
             rospy.logerr("Measurement complete callback received from unknown node: " + node_name)
             return
         rospy.loginfo("* " + node_name + " measurement complete, Notified via callback")
-        # if type(node) == hal__scale and (disc := self.get_disc_by_location(location.MAIN_CONVAYOR__SCALE)):
-        #     disc.weight = self._hal__scale.get()
+
+        # decide what to do based on which node completes 
+        if type(node) == hal__scale and (disc := self.get_disc_by_location(location.MAIN_CONVAYOR__SCALE)):
+            disc.weight = self._hal__scale.get()
+
+        # finishing up, should we move on 
         self.check_state_transition()
         
     def hal_motion_callback(self, node_name:str):

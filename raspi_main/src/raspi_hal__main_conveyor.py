@@ -3,7 +3,7 @@
 from typing import Callable
 
 import rospy
-from std_msgs.msg import Int8, Float32, Bool
+from std_msgs.msg import Int8, Float32, Bool, Empty
 
 from node_templates import *
 
@@ -14,12 +14,14 @@ class CONVEYOR_STATE(Enum):
     BACKUP = 3
 
 FEEDBACK_TOPIC=("module_b_feedback__conveyor", Int8)  # bool
+READY_FOR_INTAKE_TOPIC=("module_b__ready_for_intake", Empty)  # bool
 
 
 class hal__main_conveyor(motion_node):
-    def __init__(self, completion_callback:Callable[[str], None]=lambda _: None):
+    def __init__(self, completion_callback:Callable[[str], None]=lambda _: None, ready_for_intake_callback:Callable[[None], None]=lambda _: None):
         super().__init__(NAME="module_b", COMPLETION_CALLBACK=completion_callback)
         self.state_sub = rospy.Subscriber(*FEEDBACK_TOPIC, self.state_update)
+        self.state_sub = rospy.Subscriber(*READY_FOR_INTAKE_TOPIC, ready_for_intake_callback) # when Nucleo B is ready for the intake to go, it will signal to Pi
         self.state:CONVEYOR_STATE = CONVEYOR_STATE.CONVEYOR_IDLE
 
     def state_update(self, msg:Int8):
