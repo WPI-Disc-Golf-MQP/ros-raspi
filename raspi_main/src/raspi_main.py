@@ -35,12 +35,12 @@ class raspi_main:
         self.hal__led_demo = hal__led_demo()
         self.hal__scale = hal__scale(self.hal_measure_callback)
         self.hal__intake = hal__intake(self.hal_motion_callback)
-        self.hal__main_conveyor = hal__main_conveyor(self.hal_motion_callback, self.hal__intake.start)
+        self.hal__main_conveyor = hal__main_conveyor(self.hal_motion_callback, self.start_intake) # , self.hal__intake.start)
         self.hal_turntable = hal__turntable(self.hal_measure_callback)
 
-        self.HALs_motion: dict[str,motion_node] = {
-            'main_conveyor':self.hal__main_conveyor, 
-            'intake':self.hal__intake}
+        # self.HALs_motion: dict[str,motion_node] = {
+        #     'main_conveyor':self.hal__main_conveyor, 
+        #     'intake':self.hal__intake}
         self.HALs_measure: dict[str,measure_node] = {'scale':self.hal__scale}
         self.HALs: dict[str,serial_node] = {**self.HALs_motion, **self.HALs_measure}
 
@@ -68,6 +68,8 @@ class raspi_main:
 
 
     def start_intake(self):
+        print("Should be tarting intake now (TODO but not yet)")
+        pass
 
     def move_everything(self): ## written by matt for testing the intake module 
         # - move the outtake 
@@ -93,8 +95,11 @@ class raspi_main:
 
     # this function does not take into account that the main conveyor has to complete before the intake is called. Replaced with move_everything()
     def move_discs(self):
-        for motion_hal in self.HALs_motion.values():
-            motion_hal.start()
+
+        self.hal__main_conveyor.start()
+
+        # for motion_hal in self.HALs_motion.values():
+        #     motion_hal.start()
     
     def can_start_measurement(self) -> bool:
         return all([measure_hal.ready() for measure_hal in self.HALs_measure.values()]) \
