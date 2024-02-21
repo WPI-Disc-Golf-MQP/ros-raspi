@@ -2,6 +2,11 @@
 
 
 from typing import Iterable
+from raspi_hal__box_conveyor import hal_box_conveyor
+from raspi_hal__flex import hal_flex
+from raspi_hal__height import hal_height
+from raspi_hal__labeler import hal__labeler
+from raspi_hal__outtake import hal__outtake
 import rospy
 from std_msgs.msg import String
 
@@ -9,7 +14,7 @@ from raspi_hal__led_demo import hal__led_demo
 from raspi_hal__scale import hal__scale
 from raspi_hal__main_conveyor import hal__main_conveyor
 from raspi_hal__intake import hal__intake
-from raspi_turntable import hal__turntable
+from raspi_hal__turntable import hal__turntable
 
 from disc_record import *
 from node_templates import *
@@ -20,9 +25,8 @@ class PROCESS_STATE(Enum):
     MEASURING = 1,
     MOVING_OUTTAKE_TO_BOX = 2,
     MOVING_MAIN_CONVEYOR = 3,
-    MOVING_INTAKE = 4,
-    MOVING_TOP_CONVEYOR = 5,
-    IDLE = 6
+    MOVING_INTAKE_TOP_CONVEYOR = 4,
+    IDLE = 5
 MOTION_STATES = [PROCESS_STATE.MOVING_OUTTAKE_TO_BOX, PROCESS_STATE.MOVING_MAIN_CONVEYOR, PROCESS_STATE.MOVING_INTAKE, PROCESS_STATE.MOVING_TOP_CONVEYOR]
 
 class raspi_main:
@@ -32,16 +36,27 @@ class raspi_main:
 
         # --- HAL (Hardware Abstraction Layer) ---
 
-        self.hal__led_demo = hal__led_demo()
-        self.hal__scale = hal__scale(self.hal_measure_callback)
-        self.hal__intake = hal__intake(self.hal_motion_callback)
-        self.hal__main_conveyor = hal__main_conveyor(self.hal_motion_callback, self.start_intake) # , self.hal__intake.start)
-        self.hal_turntable = hal__turntable(self.hal_measure_callback)
+        self.hal__scale = hal__scale(self._callback__scale)
+        self.hal__flex = hal_flex(self._callback__flex)
+        self.hal__height = hal_height(self._callback__height)
+        
+        self.hal__main_conveyor = hal__main_conveyor(self._callback__main_conveyor, self._callback_main_conveyor_ready_for_intake)
+        self.hal__intake = hal__intake(self._callback__intake, self._callback_intake_ready_for_main_conveyor)
+        self.hal__outtake = hal__outtake(self._callback__outtake)
+        self.turntable = hal__turntable(self._callback__turntable)
+        self.hal__labeler = hal__labeler(self._callback__labeler)
+        self.hal__box_conveyor = hal_box_conveyor(self._callback__box_conveyor)
 
-        # self.HALs_motion: dict[str,motion_node] = {
-        #     'main_conveyor':self.hal__main_conveyor, 
-        #     'intake':self.hal__intake}
-        self.HALs_measure: dict[str,measure_node] = {'scale':self.hal__scale}
+        self.HALs_motion: dict[str,motion_node] = {
+            'main_conveyor':self.hal__main_conveyor, 
+            'intake':self.hal__intake,
+            'outtake':self.hal__outtake,
+            'box_conveyor':self.hal__box_conveyor}
+        self.HALs_measure: dict[str,measure_node] = {
+            'scale':self.hal__scale,
+            'flex':self.hal__flex,
+            'height':self.hal__height,
+            'labeler':self.hal__labeler}
         self.HALs: dict[str,serial_node] = {**self.HALs_motion, **self.HALs_measure}
 
         # --- Subscribers ---
@@ -85,7 +100,20 @@ class raspi_main:
 
 
     def check_state_transition(self):
-        pass
+        #TODO: Needs to be fleshed out.
+        if self.state == PROCESS_STATE.INIT:
+            if all([hal.is_online() for hal in self.HALs.values()]):
+                self.state = PROCESS_STATE.IDLE
+                # TODO: Display "initialization complete" on UI
+        elif self.state == PROCESS_STATE.MEASURING:
+            if all([hal.complete() for hal in self.HALs_measure.values()]):
+                self.state = PROCESS_STATE.MOVING_OUTTAKE_TO_BOX
+                # TODO: Start outtake process
+        elif self.state == PROCESS_STATE.MOVING_INTAKE_TOP_CONVEYOR:
+            if all([hal.complete() for hal in (self.hal__intake, self.hal__main_conveyor)]):
+                self.state = PROCESS_STATE.MEASURING
+                self.start_measurement()
+            
             
     
     def can_move_discs(self) -> bool:
@@ -109,34 +137,63 @@ class raspi_main:
         for measure_hal in self.HALs_measure.values():
             measure_hal.start()
     
-    def can_idle(self) -> bool:
-        return False # TODO: Implement checking for when top disc cue is empty
+    def queue_complete(self) -> bool:
+        return False # TODO: Implement checking for when top disc conveyor is empty
+    
+    
 
-    def hal_measure_callback(self, node_name:str):
-
-        # understanding the node
-        try:
-            node = self.HALs_measure[node_name]
-        except KeyError:
-            rospy.logerr("Measurement complete callback received from unknown node: " + node_name)
-            return
-        rospy.loginfo("* " + node_name + " measurement complete, Notified via callback")
-
-        # decide what to do based on which node completes 
-        if type(node) == hal__scale and (disc := self.get_disc_by_location(location.MAIN_CONVAYOR__SCALE)):
-            disc.weight = self._hal__scale.get()
-
-        # finishing up, should we move on 
+    def _callback__scale_complete(self, node_name:str):
+        rospy.loginfo("* SCALE measurement complete, Notified via callback")
+        if disc := self.get_disc_by_location(location.MAIN_CONVAYOR__SCALE):
+            disc.weight = self._hal__scale.get_weight()
+        self.check_state_transition()
+    
+    def _callback__flex_complete(self, node_name:str):
+        rospy.loginfo("* FLEX measurement complete, Notified via callback")
+        if disc := self.get_disc_by_location(location.MAIN_CONVAYOR__FLEXIBILITY):
+            disc.flex = self._hal__flex.get_flex()
+        self.check_state_transition()
+    
+    def _callback__height_complete(self, node_name:str):
+        rospy.loginfo("* HEIGHT measurement complete, Notified via callback")
+        if disc := self.get_disc_by_location(location.MAIN_CONVAYOR__FLEXIBILITY):
+            disc.height = self._hal__height.get_height()
+        self.check_state_transition()
+    
+    def _callback__main_conveyor_complete(self, node_name:str):
+        rospy.loginfo("* MAIN CONVEYOR motion complete, Notified via callback")
+        # TODO: Implement moving disc records to next location
+        self.check_state_transition()
+    
+    def _callback__intake_complete(self, node_name:str):
+        rospy.loginfo("* INTAKE motion complete, Notified via callback")
+        self.check_state_transition()
+    
+    def _callback__outtake_complete(self, node_name:str):
+        rospy.loginfo("* OUTTAKE motion complete, Notified via callback")
+        self.check_state_transition()
+    
+    def _callback__labeler_complete(self, node_name:str):
+        rospy.loginfo("* LABELER motion complete, Notified via callback")
+        self.check_state_transition()
+    
+    def _callback__box_conveyor_complete(self, node_name:str):
+        rospy.loginfo("* BOX CONVEYOR motion complete, Notified via callback")
         self.check_state_transition()
         
-    def hal_motion_callback(self, node_name:str):
-        try:
-            node = self.HALs_motion[node_name]
-        except KeyError:
-            rospy.logerr("Motion complete callback received from unknown node: " + node_name)
-            return
-        rospy.loginfo("* " + node_name + " motion complete, Notified via callback")
-        self.check_state_transition()
+    def _callback_intake_ready_for_main_conveyor(self):
+        if self.state == PROCESS_STATE.MOVING_INTAKE_TOP_CONVEYOR:
+            rospy.loginfo("* INTAKE ready for main conveyor, Notified via callback")
+            self.hal__main_conveyor.start()
+            # No state change since main conveyor is only finishing motion (with centering)
+            
+    def _callback_main_conveyor_ready_for_intake(self):
+        if self.state == PROCESS_STATE.MOVING_MAIN_CONVEYOR:
+            rospy.loginfo("* MAIN CONVEYOR ready for intake, Notified via callback")
+            self.hal__intake.start()
+            self.state = PROCESS_STATE.MOVING_INTAKE_TOP_CONVEYOR
+        
+        
 
     def ui_callback(self, btn:String):
         rospy.loginfo("[main] UI Button " + btn.data + " Pressed")
@@ -159,7 +216,8 @@ class raspi_main:
             # if not self.can_move_discs():
             #     rospy.logwarn("Cannot move discs, not all nodes are ready")
             #     return
-            self.move_discs()
+            pass
+            # self.move_discs()
         elif btn.data == UIConstants.HOME_ALL.name or btn.data == UIConstants.STOP.name:
             for hal in self.HALs.values():
                 hal.request(REQUEST.WAITING)

@@ -13,22 +13,17 @@ class CONVEYOR_STATE(Enum):
     MOVING_TO_NEXT_DISC = 2
     BACKUP = 3
 
-FEEDBACK_TOPIC=("module_b_feedback__conveyor", Int8)  # bool
-READY_FOR_INTAKE_TOPIC=("module_b__ready_for_intake", Empty)  # bool
-
+READY_FOR_INTAKE_TOPIC = ("main_conveyor__ready_for_intake", Empty)
 
 class hal__main_conveyor(motion_node):
-    def __init__(self, completion_callback:Callable[[str], None]=lambda _: None, ready_for_intake_callback:Callable[[None], None]=lambda _: None):
-        super().__init__(NAME="module_b", COMPLETION_CALLBACK=completion_callback)
-        self.state_sub = rospy.Subscriber(*FEEDBACK_TOPIC, self.state_update)
-        self.state_sub = rospy.Subscriber(*READY_FOR_INTAKE_TOPIC, ready_for_intake_callback) # when Nucleo B is ready for the intake to go, it will signal to Pi
-        self.state:CONVEYOR_STATE = CONVEYOR_STATE.CONVEYOR_IDLE
-
-    def state_update(self, msg:Int8):
-        self.state = CONVEYOR_STATE(msg.data)
+    def __init__(self, completion_callback:Callable[[str], None]=lambda _: None,
+                 ready_for_intake_callback:Callable[[None], None]=lambda: None):
+        super().__init__(NAME="main_conveyor", STATE_TYPE=CONVEYOR_STATE, 
+                         COMPLETION_CALLBACK=completion_callback)
+        self.ready_sub = rospy.Subscriber(*READY_FOR_INTAKE_TOPIC, ready_for_intake_callback)
     
-    def get_state(self) -> int:
-        return self.state.value
+    # def state_change(self, old:int, new:int):
+    #     pass
     
 if __name__ == '__main__':
     rospy.init_node('hal__main_conveyor')

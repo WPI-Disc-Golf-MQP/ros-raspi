@@ -9,7 +9,6 @@ from std_msgs.msg import Int8, Float32, Bool
 from node_templates import *
 
 WEIGHT_FEEDBACK_TOPIC=("module_b_feedback__weight", Float32)
-STATE_FEEDBACK_TOPIC=("module_b_feedback__scale_state", Int8)
 
 DISC_PRESENCE_THRESHOLD = 100 # TODO: Set to lower value in grams
 
@@ -24,25 +23,18 @@ class SCALE_STATE(Enum):
     POWERING_OFF = 4
 
 class hal__scale(measure_node):
-    def __init__(self, completion_callback:Callable[[str], None]=lambda _: None):
-        super().__init__(NAME="module_b", COMPLETION_CALLBACK=completion_callback)
+    def __init__(self, completion_callback:Callable[[str], None]):
+        super().__init__(NAME="scale", STATE_TYPE=SCALE_STATE, COMPLETION_CALLBACK=completion_callback)
         self.weight_sub = rospy.Subscriber(*WEIGHT_FEEDBACK_TOPIC, self.weight_update)
-        self.state_sub = rospy.Subscriber(*STATE_FEEDBACK_TOPIC, self.state_update)
     
     def valid_measurement(self) -> bool:
         return self.weight > DISC_PRESENCE_THRESHOLD
 
     def weight_update(self, msg:Float32):
         self.weight = msg.data
-        
-    def state_update(self, msg:Int8):
-        self.state = SCALE_STATE(msg.data)
     
-    def get(self) -> float:
+    def get_weight(self) -> float:
         return self.weight
-    
-    def get_state(self) -> int:
-        return self.state.value
         
     def complete(self) -> bool:
         return super().complete() and self.valid_measurement()

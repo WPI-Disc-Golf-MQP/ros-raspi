@@ -3,30 +3,27 @@
 from typing import Callable
 
 import rospy
-from std_msgs.msg import Int8, Float32, Bool
+from std_msgs.msg import Int8, Float32, Bool, Empty
 
 from node_templates import *
 
 class INTAKE_STATE(Enum):
     INTAKE_IDLE = 0
     INTAKE_SENDING = 1
-    INTAKE_WAITING_FOR_DISC = 2
     INTAKE_RECIEVING = 3
 
-FEEDBACK_TOPIC=("module_a_feedback__intake_state", Int8)  # bool
 
 
 class hal__intake(motion_node):
-    def __init__(self, completion_callback:Callable[[str], None]=lambda _: None):
-        super().__init__(NAME="module_a", COMPLETION_CALLBACK=completion_callback)
-        self.state_sub = rospy.Subscriber(*FEEDBACK_TOPIC, self.state_update)
-        self.state:INTAKE_STATE = INTAKE_STATE.INTAKE_IDLE
-
-    def state_update(self, msg:Int8):
-        self.state = INTAKE_STATE(msg.data)
+    def __init__(self, completion_callback:Callable[[str], None], start_conveyor_callback:Callable[[None], None]):
+        super().__init__(NAME="intake", STATE_TYPE=INTAKE_STATE, 
+                         STATE_CHANGE_CALLBACK=self.state_change, COMPLETION_CALLBACK=completion_callback)
+        self.start_conveyor_callback = start_conveyor_callback
     
-    def get_state(self) -> int:
-        return self.state.value
+    def state_change(self, old:int, new:int):
+        if INTAKE_STATE(old) == INTAKE_STATE.INTAKE_SENDING: 
+            # If we finished sending disc to conveyor, start conveyor again
+            self.start_conveyor_callback()
     
 if __name__ == '__main__':
     rospy.init_node('hal__intake')

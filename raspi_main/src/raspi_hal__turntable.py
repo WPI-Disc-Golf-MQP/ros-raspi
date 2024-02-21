@@ -11,8 +11,6 @@ from node_templates import *
 import cv2
 import os
 
-FEEDBACK_TOPIC=("module_a_feedback__turntable_state", Int8)  # bool
-
 cam10degrees = cv2.VideoCapture(0)
 cam35degrees = cv2.VideoCapture(1)
 
@@ -24,9 +22,8 @@ class TURNTABLE_STATE(Enum):
 
 class hal__turntable(measure_node):
     def __init__(self, completion_callback:Callable[[str], None]=lambda _: None):
-        super().__init__(NAME="module_a", COMPLETION_CALLBACK=completion_callback)
-        self.state_sub = rospy.Subscriber(*FEEDBACK_TOPIC, self.state_update)
-        self.state:TURNTABLE_STATE = TURNTABLE_STATE.TURNTABLE_IDLE
+        super().__init__(NAME="turntable", STATE_TOPIC=TURNTABLE_STATE, 
+                         COMPLETION_CALLBACK=completion_callback)
 
     def state_update(self, msg:Int8):
         self.state = TURNTABLE_STATE(msg.data)
