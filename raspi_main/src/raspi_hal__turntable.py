@@ -11,8 +11,8 @@ from node_templates import *
 import cv2
 import os
 
-cam10degrees = cv2.VideoCapture(0)
-cam35degrees = cv2.VideoCapture(1)
+cam10degrees = cv2.VideoCapture(1)
+cam35degrees = cv2.VideoCapture(2)
 
 class TURNTABLE_STATE(Enum):
     TURNTABLE_IDLE = 0
