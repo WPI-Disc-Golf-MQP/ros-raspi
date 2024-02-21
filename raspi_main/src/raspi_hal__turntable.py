@@ -58,7 +58,7 @@ class hal__turntable(measure_node):
         # cam35degrees.release()
 
         ret, image = cam35degrees.read()
-        cv2.imshow("image". image)
+        cv2.imshow("image", image)
         cv2.waitKey(5000)
 
 
