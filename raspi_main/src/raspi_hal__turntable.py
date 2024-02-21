@@ -11,7 +11,7 @@ from node_templates import *
 import cv2
 import os
 
-cam10degrees = cv2.VideoCapture(1)
+# cam10degrees = cv2.VideoCapture(1)
 cam35degrees = cv2.VideoCapture(2)
 
 class TURNTABLE_STATE(Enum):
@@ -35,15 +35,15 @@ class hal__turntable(measure_node):
         os.mkdir(dirname)
         rospy.loginfo(os.path.join(dirname, name10Degrees))
         for i in range(0, 10):
-            cam10degrees.set(cv2.CAP_PROP_FRAME_WIDTH, 1200)
-            cam10degrees.set(cv2.CAP_PROP_FRAME_HEIGHT, 1920)
-            cam10degrees.set(cv2.CAP_PROP_FPS, 90)
+            # cam10degrees.set(cv2.CAP_PROP_FRAME_WIDTH, 1200)
+            # cam10degrees.set(cv2.CAP_PROP_FRAME_HEIGHT, 1920)
+            # cam10degrees.set(cv2.CAP_PROP_FPS, 90)
 
             cam35degrees.set(cv2.CAP_PROP_FRAME_WIDTH, 1200)
             cam35degrees.set(cv2.CAP_PROP_FRAME_HEIGHT, 1920)
             cam35degrees.set(cv2.CAP_PROP_FPS, 90)
 
-            ret, image = cam10degrees.read()
+            # ret, image = cam10degrees.read()
             ret2, image2 = cam35degrees.read()
 
             name10Degrees = str(10) + ' ' + discName + str(i+1) + '.jpg'
@@ -54,7 +54,7 @@ class hal__turntable(measure_node):
 
             cv2.waitKey(200)
 
-        cam10degrees.release()
+        # cam10degrees.release()
         cam35degrees.release()
 
         cv2.destroyAllWindows()
