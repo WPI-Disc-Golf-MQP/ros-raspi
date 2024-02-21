@@ -76,7 +76,7 @@ if __name__ == '__main__':
 
     turntable = hal__turntable(_completion_callback)
 
-    hal__turntable.picture_disc("testing", "test")
+    hal__turntable.picture_disc("PhotosPls", "test")
     rospy.loginfo("in main loop for turntable")
     while not rospy.is_shutdown():
         # if(turntable.complete() == False):
