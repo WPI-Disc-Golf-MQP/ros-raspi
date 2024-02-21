@@ -22,7 +22,7 @@ class TURNTABLE_STATE(Enum):
 
 class hal__turntable(measure_node):
     def __init__(self, completion_callback:Callable[[str], None]=lambda _: None):
-        super().__init__(NAME="turntable", STATE_TOPIC=TURNTABLE_STATE, 
+        super().__init__(NAME="turntable", STATE_TYPE=TURNTABLE_STATE, 
                          COMPLETION_CALLBACK=completion_callback)
 
     def state_update(self, msg:Int8):
