@@ -12,7 +12,7 @@ import cv2
 import os
 
 # cam10degrees = cv2.VideoCapture(1)
-cam35degrees = cv2.VideoCapture(0)
+cam35degrees = cv2.VideoCapture(4)
 
 class TURNTABLE_STATE(Enum):
     TURNTABLE_IDLE = 0
