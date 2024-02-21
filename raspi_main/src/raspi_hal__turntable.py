@@ -33,7 +33,6 @@ class hal__turntable(measure_node):
     
     def picture_disc(dirname, discName):
         os.mkdir(dirname)
-        rospy.loginfo(os.path.join(dirname, name10Degrees))
         for i in range(0, 10):
             # cam10degrees.set(cv2.CAP_PROP_FRAME_WIDTH, 1200)
             # cam10degrees.set(cv2.CAP_PROP_FRAME_HEIGHT, 1920)
@@ -46,12 +45,13 @@ class hal__turntable(measure_node):
             # ret, image = cam10degrees.read()
             ret2, image2 = cam35degrees.read()
 
-            name10Degrees = str(10) + ' ' + discName + str(i+1) + '.jpg'
+            # name10Degrees = str(10) + ' ' + discName + str(i+1) + '.jpg'
             name35Degrees = str(35) + ' ' + discName + str(i+1) + '.jpg'
 
-            cv2.imwrite(os.path.join(dirname, name10Degrees), img=image)
+            # cv2.imwrite(os.path.join(dirname, name10Degrees), img=image)
             cv2.imwrite(os.path.join(dirname, name35Degrees), img=image2)
 
+            rospy.loginfo(os.path.join(dirname, name35Degrees))
             cv2.waitKey(200)
 
         # cam10degrees.release()
