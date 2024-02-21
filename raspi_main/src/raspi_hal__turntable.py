@@ -61,6 +61,8 @@ class hal__turntable(measure_node):
         cv2.imshow("image". image)
         cv2.waitKey(5000)
 
+
+        rospy.loginfo("should be imshowing")
         cv2.destroyAllWindows()
 
         
@@ -74,6 +76,8 @@ if __name__ == '__main__':
 
     turntable = hal__turntable(_completion_callback)
 
+    hal__turntable.picture_disc("testing", "test")
+    rospy.loginfo("in main loop for turntable")
     while not rospy.is_shutdown():
         # if(turntable.complete() == False):
             # if(turntable.get_state() == 2):
