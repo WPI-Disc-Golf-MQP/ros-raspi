@@ -42,7 +42,7 @@ class raspi_main:
         self.hal__main_conveyor = hal__main_conveyor(self._callback__main_conveyor, self._callback_main_conveyor_ready_for_intake)
         self.hal__intake = hal__intake(self._callback__intake, self._callback_intake_ready_for_main_conveyor)
         self.hal__outtake = hal__outtake(self._callback__outtake)
-        self.turntable = hal__turntable(self._callback__turntable)
+        self.hal__turntable = hal__turntable(self._callback__turntable)
         self.hal__labeler = hal__labeler(self._callback__labeler)
         self.hal__box_conveyor = hal_box_conveyor(self._callback__box_conveyor)
 
