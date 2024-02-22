@@ -13,7 +13,6 @@ from std_msgs.msg import String
 from raspi_hal__scale import hal__scale
 from raspi_hal__main_conveyor import hal__main_conveyor
 from raspi_hal__intake import hal__intake
-from raspi_hal__turntable import hal__turntable
 
 from disc_record import *
 from node_templates import *
@@ -96,6 +95,8 @@ class raspi_main:
         
         # self.hal_turntable.picture_disc("Test", "testDisc")
 
+    def camera(self):
+        self.hal__turntable.picture_disc("test", "testdisc")
 
 
 
