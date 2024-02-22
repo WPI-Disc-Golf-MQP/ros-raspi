@@ -56,7 +56,7 @@ class hal__turntable(measure_node):
 
         # # cam10degrees.release()
         # cam35degrees.release()
-
+        cam35degrees.open(4)
         cam35degrees.set(cv2.CAP_PROP_FRAME_WIDTH, 1200)
         cam35degrees.set(cv2.CAP_PROP_FRAME_HEIGHT, 1920)
         cam35degrees.set(cv2.CAP_PROP_FPS, 90)
