@@ -12,7 +12,7 @@ import cv2
 import os
 
 # cam10degrees = cv2.VideoCapture(1)
-cam35degrees = cv2.VideoCapture(4)
+# cam35degrees = cv2.VideoCapture(4)
 
 class TURNTABLE_STATE(Enum):
     TURNTABLE_IDLE = 0
@@ -31,7 +31,7 @@ class hal__turntable(measure_node):
     def get_state(self) -> int:
         return self.state.value
     
-    def picture_disc(dirname, discName):
+    def picture_disc(camera):
         # os.mkdir(dirname)
         # for i in range(0, 10):
         #     # cam10degrees.set(cv2.CAP_PROP_FRAME_WIDTH, 1200)
@@ -57,16 +57,16 @@ class hal__turntable(measure_node):
         # # cam10degrees.release()
         # cam35degrees.release()
 
-        success, image = cam35degrees.read()
+        success, image = camera.read()
 
-        cam35degrees.set(cv2.CAP_PROP_FRAME_WIDTH, 1200)
-        cam35degrees.set(cv2.CAP_PROP_FRAME_HEIGHT, 1920)
-        cam35degrees.set(cv2.CAP_PROP_FPS, 90)
-        
+        camera.set(cv2.CAP_PROP_FRAME_WIDTH, 1200)
+        camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 1920)
+        camera.set(cv2.CAP_PROP_FPS, 90)
+
         cv2.imshow("image", image)
         cv2.waitKey(10000)
 
-        cam35degrees.release()
+        camera.release()
 
 
 
@@ -84,7 +84,7 @@ if __name__ == '__main__':
 
     turntable = hal__turntable(_completion_callback)
 
-    hal__turntable.picture_disc("PhotosPls", "test")
+    # hal__turntable.picture_disc()
     rospy.loginfo("in main loop for turntable")
     while not rospy.is_shutdown():
         # if(turntable.complete() == False):

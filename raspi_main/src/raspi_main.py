@@ -7,9 +7,10 @@ from raspi_hal__flex import hal_flex
 from raspi_hal__height import hal_height
 from raspi_hal__labeler import hal__labeler
 from raspi_hal__outtake import hal__outtake
+from raspi_hal__turntable import hal__turntable
 import rospy
 from std_msgs.msg import String
-
+import cv2
 from raspi_hal__scale import hal__scale
 from raspi_hal__main_conveyor import hal__main_conveyor
 from raspi_hal__intake import hal__intake
@@ -95,8 +96,8 @@ class raspi_main:
         
         # self.hal_turntable.picture_disc("Test", "testDisc")
 
-    def camera(self):
-        self.hal__turntable.picture_disc("test", "testdisc")
+    def camera1(self):
+        self.hal__turntable.picture_disc(cv2.VideoCapture(4))
 
 
 
