@@ -235,6 +235,9 @@ class raspi_main:
                 hal.request(REQUEST.WAITING)
         elif btn.data == UIConstants.ADVANCE.name: 
             self.advance()
+        
+        elif btn.data == UIConstants.CAMERA10DEGREES.name:
+            self.camera10degreees()
     
     
     def nucleo_response_callback(self, msg):
