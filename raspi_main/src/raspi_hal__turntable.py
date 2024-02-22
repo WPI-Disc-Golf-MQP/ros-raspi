@@ -31,7 +31,7 @@ class hal__turntable(measure_node):
     def get_state(self) -> int:
         return self.state.value
     
-    def picture_disc(camera):
+    def picture_disc(self,camera):
         # os.mkdir(dirname)
         # for i in range(0, 10):
         #     # cam10degrees.set(cv2.CAP_PROP_FRAME_WIDTH, 1200)
