@@ -66,7 +66,7 @@ class hal__turntable(measure_node):
         cv2.imshow("image", image)
         cv2.waitKey(5000)
 
-        cv2.imwrite("testPhoto", image)
+        cv2.imwrite("testPhoto.jpg", image)
 
         camera.release()
 
