@@ -237,6 +237,7 @@ class raspi_main:
             self.advance()
         
         elif btn.data == UIConstants.CAMERA10DEGREES.name:
+            rospy.loginfo("pressed button")
             self.camera10degreees()
     
     
