@@ -243,6 +243,14 @@ class raspi_main:
         elif btn.data == UIConstants.CAMERA10DEGREES.name:
             rospy.loginfo("pressed button")
             self.camera10degreees()
+
+        elif btn.data == UIConstants.CAMERA35DEGREES.name:
+            rospy.loginfo("pressed button")
+            self.camera35degrees()
+        
+        elif btn.data == UIConstants.CAMERA90DEGREES.name:
+            rospy.loginfo("pressed button")
+            self.camera90degrees()
     
     
     def nucleo_response_callback(self, msg):
