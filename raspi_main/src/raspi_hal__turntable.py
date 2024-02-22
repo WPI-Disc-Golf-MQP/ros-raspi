@@ -64,7 +64,9 @@ class hal__turntable(measure_node):
         camera.set(cv2.CAP_PROP_FPS, 90)
 
         cv2.imshow("image", image)
-        cv2.waitKey(10000)
+        cv2.waitKey(5000)
+
+        cv2.imwrite("testPhoto", image)
 
         camera.release()
 
@@ -84,9 +86,9 @@ if __name__ == '__main__':
 
     turntable = hal__turntable(_completion_callback)
 
-    turntable.picture_disc(cv2.VideoCapture(4)) #10 degrees
-    turntable.picture_disc(cv2.VideoCapture(0)) #35 degrees
-    turntable.picture_disc(cv2.VideoCapture(2)) #90 degrees
+    # turntable.picture_disc(cv2.VideoCapture(4)) #10 degrees
+    # turntable.picture_disc(cv2.VideoCapture(0)) #35 degrees
+    # turntable.picture_disc(cv2.VideoCapture(2)) #90 degrees
     rospy.loginfo("in main loop for turntable")
     while not rospy.is_shutdown():
         # if(turntable.complete() == False):
