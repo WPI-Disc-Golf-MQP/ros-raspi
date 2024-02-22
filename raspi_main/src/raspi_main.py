@@ -10,7 +10,6 @@ from raspi_hal__outtake import hal__outtake
 import rospy
 from std_msgs.msg import String
 
-from raspi_hal__led_demo import hal__led_demo
 from raspi_hal__scale import hal__scale
 from raspi_hal__main_conveyor import hal__main_conveyor
 from raspi_hal__intake import hal__intake
@@ -27,7 +26,7 @@ class PROCESS_STATE(Enum):
     MOVING_MAIN_CONVEYOR = 3,
     MOVING_INTAKE_TOP_CONVEYOR = 4,
     IDLE = 5
-MOTION_STATES = [PROCESS_STATE.MOVING_OUTTAKE_TO_BOX, PROCESS_STATE.MOVING_MAIN_CONVEYOR, PROCESS_STATE.MOVING_INTAKE, PROCESS_STATE.MOVING_TOP_CONVEYOR]
+MOTION_STATES = [PROCESS_STATE.MOVING_OUTTAKE_TO_BOX, PROCESS_STATE.MOVING_MAIN_CONVEYOR, PROCESS_STATE.MOVING_INTAKE_TOP_CONVEYOR]
 
 class raspi_main:
     def __init__(self):
