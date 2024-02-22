@@ -93,6 +93,7 @@ class raspi_main:
 
         # # - move the intake (because we know that)
         self.hal__intake.start() 
+        rospy.loginfo("INTAKE BUTTON PRESSED HOORAY")
         
         # self.hal_turntable.picture_disc("Test", "testDisc")
 
