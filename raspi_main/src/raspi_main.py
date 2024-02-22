@@ -86,15 +86,16 @@ class raspi_main:
         print("Should be tarting intake now (TODO but not yet)")
         pass
 
-    def move_everything(self): ## written by matt for testing the intake module 
+    def advance(self): ## written by matt for testing the intake module 
         # - move the outtake 
         # - move the conveyor
         # self.hal__main_conveyor.start()
         
 
         # # - move the intake (because we know that)
-        # self.hal__intake.start() 
-        self.hal_turntable.picture_disc("Test", "testDisc")
+        self.hal__intake.start() 
+        
+        # self.hal_turntable.picture_disc("Test", "testDisc")
 
 
 
@@ -221,8 +222,8 @@ class raspi_main:
         elif btn.data == UIConstants.HOME_ALL.name or btn.data == UIConstants.STOP.name:
             for hal in self.HALs.values():
                 hal.request(REQUEST.WAITING)
-        elif btn.data == UIConstants.MOVE_EVERYTHING.name: 
-            self.move_everything()
+        elif btn.data == UIConstants.ADVANCE.name: 
+            self.advance()
     
     
     def nucleo_response_callback(self, msg):

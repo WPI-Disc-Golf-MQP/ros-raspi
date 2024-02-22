@@ -9,4 +9,4 @@ class UIConstants(Enum):
     SEQUENCE_START = "Start Sequence",
     HOME_ALL = "Home All",
     STOP = "Stop All",
-    MOVE_EVERYTHING = "move_everything", 
+    ADVANCE = "Advance", 
