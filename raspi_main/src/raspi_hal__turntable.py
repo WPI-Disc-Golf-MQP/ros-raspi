@@ -67,6 +67,7 @@ class hal__turntable(measure_node):
         cv2.waitKey(5000)
 
         cv2.imwrite("testPhoto.jpg", image)
+        rospy.loginfo("saving image?")
 
         camera.release()
 
