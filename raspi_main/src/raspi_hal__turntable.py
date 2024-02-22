@@ -12,7 +12,7 @@ import cv2
 import os
 
 # cam10degrees = cv2.VideoCapture(1)
-cam35degrees = cv2.VideoCapture(4)
+cam35degrees = cv2.VideoCapture(0)
 
 class TURNTABLE_STATE(Enum):
     TURNTABLE_IDLE = 0
@@ -56,11 +56,10 @@ class hal__turntable(measure_node):
 
         # # cam10degrees.release()
         # cam35degrees.release()
-        cam35degrees.open(4)
-        cam35degrees.set(cv2.CAP_PROP_FRAME_WIDTH, 1200)
-        cam35degrees.set(cv2.CAP_PROP_FRAME_HEIGHT, 1920)
-        cam35degrees.set(cv2.CAP_PROP_FPS, 90)
-        ret, image = cam35degrees.read()
+        # cam35degrees.set(cv2.CAP_PROP_FRAME_WIDTH, 1200)
+        # cam35degrees.set(cv2.CAP_PROP_FRAME_HEIGHT, 1920)
+        # cam35degrees.set(cv2.CAP_PROP_FPS, 90)
+        success, image = cam35degrees.read()
         cv2.imshow("image", image)
         cv2.waitKey(10000)
 
