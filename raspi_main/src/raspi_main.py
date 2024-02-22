@@ -97,14 +97,14 @@ class raspi_main:
         
         # self.hal_turntable.picture_disc("Test", "testDisc")
 
-    def camera1(self):
+    def camera10degreees(self):
         self.hal__turntable.picture_disc(cv2.VideoCapture(4))
         rospy.loginfo("should be showing camera :)")
     
-    def camera2(self):
+    def camera35degrees(self):
         self.hal__turntable.picture_disc(cv2.VideoCapture(0))
     
-    def camera3(self):
+    def camera90degrees(self):
         self.hal__turntable.picture_disc(cv2.VideoCapture(2))
 
 

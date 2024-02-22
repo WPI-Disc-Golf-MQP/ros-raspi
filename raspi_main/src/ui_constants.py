@@ -10,6 +10,6 @@ class UIConstants(Enum):
     HOME_ALL = "Home All",
     STOP = "Stop All",
     ADVANCE = "Advance", 
-    CAMERA1 = "Camera1"
-    CAMERA2 = "Camera2"
-    CAMERA3 = "Camera3"
+    CAMERA10DEGREES = "Camera10Degrees"
+    CAMERA35DEGREES = "Camera35Degrees"
+    CAMERA90DEGREES = "Camera90Degrees"
