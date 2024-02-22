@@ -35,16 +35,16 @@ class raspi_main:
 
         # --- HAL (Hardware Abstraction Layer) ---
 
-        self.hal__scale = hal__scale(self._callback__scale)
-        self.hal__flex = hal_flex(self._callback__flex)
-        self.hal__height = hal_height(self._callback__height)
+        self.hal__scale = hal__scale(self._callback__scale_complete)
+        self.hal__flex = hal_flex(self._callback__flex_complete)
+        self.hal__height = hal_height(self._callback__height_complete)
         
-        self.hal__main_conveyor = hal__main_conveyor(self._callback__main_conveyor, self._callback_main_conveyor_ready_for_intake)
-        self.hal__intake = hal__intake(self._callback__intake, self._callback_intake_ready_for_main_conveyor)
-        self.hal__outtake = hal__outtake(self._callback__outtake)
-        self.hal__turntable = hal__turntable(self._callback__turntable)
-        self.hal__labeler = hal__labeler(self._callback__labeler)
-        self.hal__box_conveyor = hal_box_conveyor(self._callback__box_conveyor)
+        self.hal__main_conveyor = hal__main_conveyor(self._callback__main_conveyor_complete, self._callback_main_conveyor_ready_for_intake)
+        self.hal__intake = hal__intake(self._callback__intake_complete, self._callback_intake_ready_for_main_conveyor)
+        self.hal__outtake = hal__outtake(self._callback__outtake_complete)
+        self.turntable = hal__turntable(self._callback__turntable_complete)
+        self.hal__labeler = hal__labeler(self._callback__labeler_complete)
+        self.hal__box_conveyor = hal_box_conveyor(self._callback__box_conveyor_complete)
 
         self.HALs_motion: dict[str,motion_node] = {
             'main_conveyor':self.hal__main_conveyor, 
@@ -179,6 +179,10 @@ class raspi_main:
     
     def _callback__intake_complete(self, node_name:str):
         rospy.loginfo("* INTAKE motion complete, Notified via callback")
+        self.check_state_transition()
+        
+    def _callback__turntable_complete(self, node_name:str):
+        rospy.loginfo("* TURNTABLE motion complete, Notified via callback")
         self.check_state_transition()
     
     def _callback__outtake_complete(self, node_name:str):
