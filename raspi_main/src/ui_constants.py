@@ -11,3 +11,5 @@ class UIConstants(Enum):
     STOP = "Stop All",
     ADVANCE = "Advance", 
     CAMERA1 = "Camera1"
+    CAMERA2 = "Camera2"
+    CAMERA3 = "Camera3"

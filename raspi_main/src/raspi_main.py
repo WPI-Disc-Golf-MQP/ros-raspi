@@ -100,6 +100,12 @@ class raspi_main:
     def camera1(self):
         self.hal__turntable.picture_disc(cv2.VideoCapture(4))
         rospy.loginfo("should be showing camera :)")
+    
+    def camera2(self):
+        self.hal__turntable.picture_disc(cv2.VideoCapture(0))
+    
+    def camera3(self):
+        self.hal__turntable.picture_disc(cv2.VideoCapture(2))
 
 
 
