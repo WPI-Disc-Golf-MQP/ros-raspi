@@ -57,14 +57,15 @@ class hal__turntable(measure_node):
         # # cam10degrees.release()
         # cam35degrees.release()
 
-        cam35degrees.set(cv2.CAP_PROP_FRAME_WIDTH, 1200)
-        cam35degrees.set(cv2.CAP_PROP_FRAME_HEIGHT, 1920)
-        cam35degrees.set(cv2.CAP_PROP_FPS, 90)
-        ret, image = cam35degrees.read()
-        cv2.imshow("image", image)
-        cv2.waitKey(10000)
+        if cam35degrees.isOpened():
+            cam35degrees.set(cv2.CAP_PROP_FRAME_WIDTH, 1200)
+            cam35degrees.set(cv2.CAP_PROP_FRAME_HEIGHT, 1920)
+            cam35degrees.set(cv2.CAP_PROP_FPS, 90)
+            ret, image = cam35degrees.read()
+            cv2.imshow("image", image)
+            cv2.waitKey(10000)
 
-        cam35degrees.release()
+            cam35degrees.release()
 
 
 
@@ -82,8 +83,7 @@ if __name__ == '__main__':
 
     turntable = hal__turntable(_completion_callback)
 
-    if(cam35degrees.isOpened()):
-        hal__turntable.picture_disc("PhotosPls", "test")
+    hal__turntable.picture_disc("PhotosPls", "test")
     rospy.loginfo("in main loop for turntable")
     while not rospy.is_shutdown():
         # if(turntable.complete() == False):
