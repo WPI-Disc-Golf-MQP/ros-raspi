@@ -134,8 +134,10 @@ class raspi_main:
         #     motion_hal.start()
     
     def can_start_measurement(self) -> bool:
+        rospy.loginfo("starting something")
         return all([measure_hal.ready() for measure_hal in self.HALs_measure.values()]) \
             and all([motion_hal.complete() for motion_hal in self.HALs_motion.values()])
+
     
     def start_measurement(self):
         for measure_hal in self.HALs_measure.values():
