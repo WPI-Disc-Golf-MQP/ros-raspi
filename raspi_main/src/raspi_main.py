@@ -5,7 +5,7 @@ from typing import Iterable
 from raspi_hal__box_conveyor import hal_box_conveyor
 from raspi_hal__flex import hal_flex
 from raspi_hal__height import hal_height
-from raspi_hal__labeler import hal__labeler
+from raspi_hal__label_tamper import hal__label_tamper
 from raspi_hal__outtake import hal__outtake
 from raspi_hal__turntable import hal__turntable
 import rospy
@@ -43,7 +43,7 @@ class raspi_main:
         self.hal__intake = hal__intake(self._callback__intake_complete, self._callback_intake_ready_for_main_conveyor)
         self.hal__outtake = hal__outtake(self._callback__outtake_complete)
         self.hal__turntable = hal__turntable(self._callback__turntable_complete)
-        self.hal__labeler = hal__labeler(self._callback__labeler_complete)
+        self.hal__labeler = hal__label_tamper(self._callback__label_tamper_complete)
         self.hal__box_conveyor = hal_box_conveyor(self._callback__box_conveyor_complete)
 
         self.HALs_motion: dict[str,motion_node] = {
@@ -189,7 +189,7 @@ class raspi_main:
         rospy.loginfo("* OUTTAKE motion complete, Notified via callback")
         self.check_state_transition()
     
-    def _callback__labeler_complete(self, node_name:str):
+    def _callback__label_tamper_complete(self, node_name:str):
         rospy.loginfo("* LABELER motion complete, Notified via callback")
         self.check_state_transition()
     
