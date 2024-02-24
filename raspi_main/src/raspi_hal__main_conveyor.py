@@ -9,21 +9,22 @@ from node_templates import *
 
 class CONVEYOR_STATE(Enum):
     CONVEYOR_IDLE = 0
-    MOVING_TO_CENTER = 1
-    MOVING_TO_NEXT_DISC = 2
-    BACKUP = 3
-
-READY_FOR_INTAKE_TOPIC = ("main_conveyor__ready_for_intake", Empty)
+    ADVANCING_TO_NEXT_DISC_EDGE = 1
+    WAITING_FOR_INTAKE = 2
+    MOVING_TO_CENTER = 3
+    BACKUP = 4
 
 class hal__main_conveyor(motion_node):
     def __init__(self, completion_callback:Callable[[str], None]=lambda _: None,
                  ready_for_intake_callback:Callable[[None], None]=lambda: None):
         super().__init__(NAME="main_conveyor", STATE_TYPE=CONVEYOR_STATE, 
-                         COMPLETION_CALLBACK=completion_callback)
-        self.ready_sub = rospy.Subscriber(*READY_FOR_INTAKE_TOPIC, ready_for_intake_callback)
+                         COMPLETION_CALLBACK=completion_callback, STATE_CHANGE_CALLBACK=self.state_change)
+        self.ready_for_intake_callback = ready_for_intake_callback
     
-    # def state_change(self, old:int, new:int):
-    #     pass
+    def state_change(self, old:int, new:int):
+        if CONVEYOR_STATE(new) == CONVEYOR_STATE.WAITING_FOR_INTAKE:
+            # If we start waiting for intake, notify the intake to start
+            self.ready_for_intake_callback()
     
 if __name__ == '__main__':
     rospy.init_node('hal__main_conveyor')

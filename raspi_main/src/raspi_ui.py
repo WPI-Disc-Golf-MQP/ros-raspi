@@ -43,7 +43,7 @@ class ui:
         
         self.scale_weight = ctk.CTkLabel(main_frame, text="Weight: 0g",font=ctk.CTkFont(size=24, weight="bold"))
         self.scale_weight.grid(row=6, column=1, padx=5, pady=15)
-        self.scale_sub = rospy.Subscriber('module_b_feedback__weight', Float32, self.scale_callback)
+        self.scale_sub = rospy.Subscriber('scale_feedback__weight', Float32, self.scale_callback)
         
         self.app.mainloop()
 

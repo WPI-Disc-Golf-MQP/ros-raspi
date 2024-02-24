@@ -8,7 +8,7 @@ from std_msgs.msg import Int8, Float32, Bool
 
 from node_templates import *
 
-WEIGHT_FEEDBACK_TOPIC=("module_b_feedback__weight", Float32)
+WEIGHT_FEEDBACK_TOPIC=("scale_feedback__weight", Float32)
 
 DISC_PRESENCE_THRESHOLD = 100 # TODO: Set to lower value in grams
 

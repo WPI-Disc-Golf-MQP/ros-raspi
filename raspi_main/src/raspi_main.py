@@ -236,7 +236,7 @@ class raspi_main:
             # self.move_discs()
         elif btn.data == UIConstants.HOME_ALL.name or btn.data == UIConstants.STOP.name:
             for hal in self.HALs.values():
-                hal.request(REQUEST.WAITING)
+                hal.request(REQUEST.STOP)
         elif btn.data == UIConstants.ADVANCE.name: 
             self.advance()
         
