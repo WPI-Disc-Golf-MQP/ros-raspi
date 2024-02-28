@@ -6,6 +6,7 @@ from enum import Enum
 from threading import Timer
 from datetime import datetime, timedelta
 from typing import Callable, Type
+import logging
 import rospy
 from std_msgs.msg import Int8
 
@@ -93,11 +94,12 @@ class serial_node(ABC):
         self._check_callbacks()
     
     def recieve_state(self, msg:Int8):
-        try:
+        # try:
             if self.state_change_callback is not None: self.state_change_callback(self.state, msg.data)
             self.state = self._state_type(msg.data)
-        except:
-           rospy.logerr("[" + self.name + "] Error in state message or callback handling: " + str(msg.data))
+        # except Exception as e:
+        #    rospy.logerr("[" + self.name + "] Error in state message or callback handling: " + str(msg.data))
+        #    logging.exception("[" + self.name + "] Error in state message or callback handling")
 
     def get_state(self) -> int:
         return int(self.state)
