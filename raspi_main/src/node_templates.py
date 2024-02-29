@@ -96,7 +96,7 @@ class serial_node(ABC):
     def receive_state(self, msg:Int8):
         # try:
             if self.state_change_callback is not None: 
-                rospy.loginfo("[" + self.name + "] Status Change: " + str(self.state) + " -> " + str(newstate := self._state_type(int(msg.data))))
+                rospy.loginfo("[" + self.name + "] State Change: " + str(self.state) + " -> " + str(newstate := self._state_type(int(msg.data))))
                 self.state_change_callback(self.state, msg.data)
             self.state = newstate
         # except Exception as e:
