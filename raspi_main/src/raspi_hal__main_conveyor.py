@@ -24,6 +24,8 @@ class hal__main_conveyor(motion_node):
     def state_change(self, old:int, new:int):
         if CONVEYOR_STATE(new) == CONVEYOR_STATE.WAITING_FOR_INTAKE:
             # If we start waiting for intake, notify the intake to start
+
+            rospy.loginfo("main conveyor made it to state change from {} to {}".f(old, new))
             self.ready_for_intake_callback()
     
 if __name__ == '__main__':
