@@ -37,7 +37,7 @@ class serial_node(ABC):
                  refresh_rate:float=0.25):
         self.name = NAME 
         self.state = STATE_TYPE(0)
-        self._state_type = STATE_TYPE
+        self._state_type:Type[Enum] = STATE_TYPE
         self.timeout = timeout
         self.completion_callback = COMPLETION_CALLBACK
         self.state_change_callback = STATE_CHANGE_CALLBACK
@@ -96,7 +96,7 @@ class serial_node(ABC):
     def recieve_state(self, msg:Int8):
         # try:
             if self.state_change_callback is not None: self.state_change_callback(self.state, msg.data)
-            self.state = self._state_type(msg.data)
+            self.state = self._state_type(int(msg.data))
         # except Exception as e:
         #    rospy.logerr("[" + self.name + "] Error in state message or callback handling: " + str(msg.data))
         #    logging.exception("[" + self.name + "] Error in state message or callback handling")
