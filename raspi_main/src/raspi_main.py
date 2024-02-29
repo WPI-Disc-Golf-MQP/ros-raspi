@@ -198,13 +198,13 @@ class raspi_main:
         self.check_state_transition()
         
     def _callback_intake_ready_for_main_conveyor(self):
-        if self.state == PROCESS_STATE.MOVING_INTAKE_TOP_CONVEYOR:
+        #if self.state == PROCESS_STATE.MOVING_INTAKE_TOP_CONVEYOR:
             rospy.loginfo("* INTAKE ready for main conveyor, Notified via callback")
             self.hal__main_conveyor.start()
             # No state change since main conveyor is only finishing motion (with centering)
             
     def _callback_main_conveyor_ready_for_intake(self):
-        if self.state == PROCESS_STATE.MOVING_MAIN_CONVEYOR:
+        #if self.state == PROCESS_STATE.MOVING_MAIN_CONVEYOR:
             rospy.loginfo("* MAIN CONVEYOR ready for intake, Notified via callback")
             self.hal__intake.start()
             self.state = PROCESS_STATE.MOVING_INTAKE_TOP_CONVEYOR
