@@ -97,6 +97,7 @@ class raspi_main:
         
         # self.hal_turntable.picture_disc("Test", "testDisc")
 
+
     def camera10degreees(self):
         self.hal__turntable.picture_disc(cv2.VideoCapture(4))
         rospy.loginfo("should be showing camera :)")
@@ -234,6 +235,9 @@ class raspi_main:
             #     return
             pass
             # self.move_discs()
+        elif btn.data == UIConstants.TURNTABLE_START.name:
+            self.hal__turntable.start() 
+             
         elif btn.data == UIConstants.HOME_ALL.name or btn.data == UIConstants.STOP.name:
             for hal in self.HALs.values():
                 hal.request(REQUEST.STOP)

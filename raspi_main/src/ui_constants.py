@@ -10,6 +10,7 @@ class UIConstants(Enum):
     HOME_ALL = "Home All",
     STOP = "Stop All",
     ADVANCE = "Advance", 
-    CAMERA10DEGREES = "Camera10Degrees"
-    CAMERA35DEGREES = "Camera35Degrees"
-    CAMERA90DEGREES = "Camera90Degrees"
+    CAMERA10DEGREES = "Camera10Degrees",
+    CAMERA35DEGREES = "Camera35Degrees",
+    CAMERA90DEGREES = "Camera90Degrees",
+    TURNTABLE_START = "Start Turntable",
