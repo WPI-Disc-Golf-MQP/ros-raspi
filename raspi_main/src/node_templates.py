@@ -59,7 +59,7 @@ class serial_node(ABC):
         if REQUEST_TOPIC[0] != "" and REQUEST_TOPIC[1] is not type(None):
             self.request_pub = rospy.Publisher(*REQUEST_TOPIC, queue_size=10)
         if STATE_TOPIC[0] != "" and STATE_TOPIC[1] is not type(None):
-            self.state_sub = rospy.Subscriber(*STATE_TOPIC, self.recieve_state)
+            self.state_sub = rospy.Subscriber(*STATE_TOPIC, self.receive_state)
 
         self.last_seen = datetime.now() - timedelta(seconds=5)
         self.last_complete = datetime.now() - timedelta(seconds=5)
@@ -93,7 +93,7 @@ class serial_node(ABC):
             
         self._check_callbacks()
     
-    def recieve_state(self, msg:Int8):
+    def receive_state(self, msg:Int8):
         # try:
             if self.state_change_callback is not None: 
                 rospy.loginfo("[" + self.name + "] Status Change: " + str(self.state) + " -> " + str(newstate := self._state_type(int(msg.data))))
