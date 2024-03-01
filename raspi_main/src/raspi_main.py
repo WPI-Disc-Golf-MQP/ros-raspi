@@ -52,6 +52,7 @@ class raspi_main:
             'outtake':self.hal__outtake,
             'box_conveyor':self.hal__box_conveyor}
         self.HALs_measure: dict[str,measure_node] = {
+            'turntable':self.hal__turntable,
             'scale':self.hal__scale,
             'flex':self.hal__flex,
             'height':self.hal__height,
