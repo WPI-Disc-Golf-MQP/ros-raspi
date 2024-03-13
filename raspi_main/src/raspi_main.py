@@ -215,33 +215,11 @@ class raspi_main:
 
     def ui_callback(self, btn:String):
         rospy.loginfo("[main] UI Button " + btn.data + " Pressed")
-        if btn.data == UIConstants.CONVEYOR_START.name:
-            # if not self.can_move_discs():
-            #     rospy.logwarn("Cannot move conveyor, not all nodes are ready")
-            #     return
-            self.hal__main_conveyor.start()
-        elif btn.data == UIConstants.INTAKE_START.name:
-            # if not self.can_move_discs():
-            #     rospy.logwarn("Cannot move intake, not all nodes are ready")
-            #     return
-            self.hal__intake.start()
-        elif btn.data == UIConstants.MEASURE_START.name:
-            # if not self.can_start_measurement():
-            #     rospy.logwarn("Cannot start measurement, not all nodes are ready")
-            #     return
-            self.start_measurement()
-        elif btn.data == UIConstants.MOTION_START.name:
-            # if not self.can_move_discs():
-            #     rospy.logwarn("Cannot move discs, not all nodes are ready")
-            #     return
-            pass
-            # self.move_discs()
-        elif btn.data == UIConstants.TURNTABLE_START.name:
-            self.hal__turntable.start() 
-             
-        elif btn.data == UIConstants.HOME_ALL.name or btn.data == UIConstants.STOP.name:
+        
+        if btn.data == btn.data == UIConstants.STOP.name:
             for hal in self.HALs.values():
-                hal.request(REQUEST.STOP)
+                hal.request(REQUEST.STOP)   
+        
         elif btn.data == UIConstants.ADVANCE.name: 
             self.advance()
         
@@ -253,7 +231,32 @@ class raspi_main:
         
         elif btn.data == UIConstants.CAMERA90DEGREES.name:
             self.camera90degrees()
-    
+        
+
+        elif btn.data == UIConstants.TURNTABLE_START.name:
+            self.hal__turntable.start() 
+        
+        elif btn.data == UIConstants.CONVEYOR_START.name:
+            self.hal__main_conveyor.start()
+
+        elif btn.data == UIConstants.INTAKE_START.name:
+            self.hal__intake.start()
+        
+
+
+
+        # elif btn.data == UIConstants.MEASURE_START.name:
+        #     # if not self.can_start_measurement():
+        #     #     rospy.logwarn("Cannot start measurement, not all nodes are ready")
+        #     #     return
+        #     self.start_measurement()
+        # elif btn.data == UIConstants.MOTION_START.name:
+        #     # if not self.can_move_discs():
+        #     #     rospy.logwarn("Cannot move discs, not all nodes are ready")
+        #     #     return
+        #     pass
+        #     # self.move_discs()
+
     
     def nucleo_response_callback(self, msg):
         print("[main] Nucleo Response Received: " + msg.data)
