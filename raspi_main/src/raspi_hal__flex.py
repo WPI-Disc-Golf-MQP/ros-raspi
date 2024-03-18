@@ -11,7 +11,6 @@ class FLEX_STATE(Enum):
     FLEX_IDLE = 0
     FLEX_RAISING = 1
     FLEX_LOWERING = 2
-    FLEX_ERROR = -1
     
 FLEX_TOPIC = ('flex', Int8,)
 

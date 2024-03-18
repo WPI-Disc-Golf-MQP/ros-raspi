@@ -222,6 +222,9 @@ class raspi_main:
         
         elif btn.data == UIConstants.ADVANCE.name: 
             self.advance()
+
+
+
         
         elif btn.data == UIConstants.CAMERA10DEGREES.name:
             self.camera10degreees()
@@ -241,6 +244,10 @@ class raspi_main:
 
         elif btn.data == UIConstants.INTAKE_START.name:
             self.hal__intake.start()
+
+
+        elif btn.data == UIConstants.FLEX_START.name:
+            self.hal__flex.start()
         
 
 

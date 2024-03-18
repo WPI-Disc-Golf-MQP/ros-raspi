@@ -16,5 +16,7 @@ class UIConstants(Enum):
     CONVEYOR_START = "Start Conveyor",
     INTAKE_START = "Start Intake",
 
+    FLEX_START = "Start Flex",
+
     # MEASURE_START = "Start All Measurements",
     # MOTION_START = "Start All Disc Motions",
