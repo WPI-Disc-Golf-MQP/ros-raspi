@@ -18,5 +18,9 @@ class UIConstants(Enum):
 
     FLEX_START = "Start Flex",
 
+    INCREASE_TOP_CONVEYOR = "INCREASE_TOP_CONVEYOR",
+    DECREASE_TOP_CONVEYOR = "DECREASE_TOP_CONVEYOR",
+    MOVE_TRACKER_FORWARD = "MOVE_STORAGE_FORWARD",
+
     # MEASURE_START = "Start All Measurements",
     # MOTION_START = "Start All Disc Motions",

@@ -45,7 +45,23 @@ class ui:
         self.scale_weight.grid(row=6, column=1, padx=5, pady=15)
         self.scale_sub = rospy.Subscriber('scale_feedback__weight', Float32, self.scale_callback)
         
+        self.top_conveyor_tracker_readout = ctk.CTkLabel(main_frame, text="readout placeholder",font=ctk.CTkFont(size=24, weight="bold"))
+        self.top_conveyor_tracker_readout.grid(row=7, column=1, padx=5, pady=15)
+        self.top_conveyortracker_readout_sub = rospy.Subscriber('top_conveyor_tracker', String, self.top_conveyor_tracker_readout_callback)
+
+        self.main_conveyor_tracker_readout = ctk.CTkLabel(main_frame, text="readout placeholder",font=ctk.CTkFont(size=24, weight="bold"))
+        self.main_conveyor_tracker_readout.grid(row=8, column=1, padx=5, pady=15)
+        self.main_conveyor_tracker_readout_sub = rospy.Subscriber('main_conveyor_tracker', String, self.main_conveyor_tracker_readout_callback)
+
         self.app.mainloop()
+
+    def top_conveyor_tracker_readout_callback(self, msg:String):
+        self.top_conveyor_tracker_readout.configure(text=msg.data, require_redraw=True)
+        print(msg.data)
+
+    def main_conveyor_tracker_readout_callback(self, msg:String):
+        self.main_conveyor_tracker_readout.configure(text=msg.data, require_redraw=True)
+        print(msg.data)
 
     def scale_callback(self, msg:Float32):
         self.scale_weight.configure(text="Weight: " + str(round(msg.data,3)) + "g", require_redraw=True)

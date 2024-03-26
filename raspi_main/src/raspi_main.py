@@ -19,6 +19,9 @@ from disc_record import *
 from node_templates import *
 from ui_constants import UIConstants
 
+from raspi_disc_tracker import raspi_disc_tracker as rdt
+
+
 class PROCESS_STATE(Enum):
     INIT = 0,
     MEASURING = 1,
@@ -60,13 +63,16 @@ class raspi_main:
         self.HALs: dict[str,serial_node] = {**self.HALs_motion, **self.HALs_measure}
 
         # --- Subscribers ---
-
         self.button_b_subscriber = rospy.Subscriber('ui_button', String, self.ui_callback)
 
         # --- Publishers ---
+        self.top_conveyor_publisher = rospy.Publisher('top_conveyor_tracker', String, queue_size=10)
+        self.main_conveyor_publisher = rospy.Publisher('main_conveyor_tracker', String, queue_size=10)
 
+        # --- Disc Tracker ---
+        self.rdt = rdt(self.top_conveyor_publisher, self.main_conveyor_publisher)
 
-        # --- Discs ---
+        # --- Discs --- # TODO: update this to include the new code about the disc tracker. Namely, the get_disc_by_location needs to be updated because it is used below in the callbacks from the nucleos 
 
         self.discs = []
         self.new_disc = lambda : disc_record()
@@ -250,6 +256,14 @@ class raspi_main:
             self.hal__flex.start()
         
 
+
+        elif btn.data == UIConstants.INCREASE_TOP_CONVEYOR.name:
+            self.rdt.increase_top_conveyor()
+        elif btn.data == UIConstants.DECREASE_TOP_CONVEYOR.name:
+            self.rdt.decrease_top_conveyor()
+        elif btn.data == UIConstants.MOVE_TRACKER_FORWARD.name:
+            self.rdt.move_all_measures_over(disc_record(sku="PLACEHOLDER SKU"))
+        
 
 
         # elif btn.data == UIConstants.MEASURE_START.name:
