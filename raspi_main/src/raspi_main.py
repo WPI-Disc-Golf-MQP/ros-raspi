@@ -266,6 +266,11 @@ class raspi_main:
         
 
 
+        elif btn.data == UIConstants.TRISTANS_BUTTON.name:
+            print('you hit tristans button')
+            self.hal__box_conveyor.start()
+
+
         # elif btn.data == UIConstants.MEASURE_START.name:
         #     # if not self.can_start_measurement():
         #     #     rospy.logwarn("Cannot start measurement, not all nodes are ready")

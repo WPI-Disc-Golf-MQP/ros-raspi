@@ -24,3 +24,5 @@ class UIConstants(Enum):
 
     # MEASURE_START = "Start All Measurements",
     # MOTION_START = "Start All Disc Motions",
+
+    TRISTANS_BUTTON = "run outtake",
