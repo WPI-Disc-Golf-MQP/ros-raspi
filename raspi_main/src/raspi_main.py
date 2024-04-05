@@ -99,8 +99,7 @@ class raspi_main:
                 #    self.hal__box_conveyor.state.value
                    ) == 0:
                 self.state = PROCESS_STATE.MEASURING  
-                print("moved to measuring")           
-            
+                print("moved to measuring")                   
 
         elif self.state == PROCESS_STATE.MEASURING:
             if all([hal.complete() for hal in self.HALs_measure.values()]):
@@ -111,6 +110,9 @@ class raspi_main:
             if all([hal.complete() for hal in (self.hal__intake, self.hal__main_conveyor)]):
                 self.state = PROCESS_STATE.MEASURING
                 self.start_measurement()
+        
+        rospy.loginfo("check_state_transition called. Current meta machine state is: "+str(self.state))    
+
 
     def advance(self): 
         # TODO: Ensure this error catching startup code (can_move_discs function) is working  
