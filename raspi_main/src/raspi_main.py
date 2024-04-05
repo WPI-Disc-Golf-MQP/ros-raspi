@@ -124,6 +124,7 @@ class raspi_main:
 
         # -- now we are ready to move the discs 
         self.state = PROCESS_STATE.ADVANCING
+        rospy.loginfo("are you getting here")
 
         #TODO: Eventually start the box conveyor, and that will set off a chain of events through the callbacks box -> outtake -> main -> intake -> main 
         # for now, since module C is broken, starting farther up the chain 
