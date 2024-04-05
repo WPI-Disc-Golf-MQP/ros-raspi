@@ -54,6 +54,7 @@ class raspi_disc_tracker():
         # TODO: make the handle an actual unique number based on MAPLE HILL Inventory System, rather than a random number 
         # TODO: write a function that writes to the front of the queue and let them choose with 2 buttons
         # TODO: add a manufacturer_sku input field in the GUI 
+        self.publish()
 
     def remove_last_disc(self): 
         # this function removes the disc that is furthest from being dropped
@@ -67,6 +68,7 @@ class raspi_disc_tracker():
         self.discs.remove(a)
 
         # TODO: allow user to choose removing the closest or furthest 
+        self.publish()
 
     # Function to get the highest number of the top_conveyor_sub_loc
     def highest_top_conveyor_sub_loc(self):
@@ -101,7 +103,9 @@ class raspi_disc_tracker():
             elif disc.loc.value == location.BOXES.value: 
                 pass # still in the boxes, unless you press a button to store it 
                 # TODO: store some kind of sub location, like the slot in the boxes, so that it can be found later much easier 
-        
+        self.publish() 
+
+    def publish(self): 
         # after all discs are moved, we can publish some new states
         self.top_conveyor_publisher.publish(str(self.count_top_conveyor_discs()))
         column_names_included = self.get_field_names() + "\n" + self.get_stringified_non_top_conveyor_records()
