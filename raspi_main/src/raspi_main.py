@@ -95,11 +95,11 @@ class raspi_main:
 
         elif self.state == PROCESS_STATE.ADVANCING: 
             # check to ensure all advancing modules are back in idle 
-            if sum(self.hal__intake.state.value,
-                #    self.hal__main_conveyor.state.value,
-                #    self.hal__outtake.state.value,
-                #    self.hal__box_conveyor.state.value
-                   ) == 0:
+            if ((self.hal__intake.state.value == 0) and
+                (self.hal__main_conveyor.state.value == 0) and
+                (self.hal__outtake.state.value == 0) and
+                (self.hal__box_conveyor.state.value == 0) 
+                   ):
                 self.state = PROCESS_STATE.MEASURING  
                 print("moved to measuring")                   
 
@@ -124,7 +124,6 @@ class raspi_main:
 
         # -- now we are ready to move the discs 
         self.state = PROCESS_STATE.ADVANCING
-        rospy.loginfo("are you getting here")
 
         #TODO: Eventually start the box conveyor, and that will set off a chain of events through the callbacks box -> outtake -> main -> intake -> main 
         # for now, since module C is broken, starting farther up the chain 
