@@ -86,6 +86,8 @@ class raspi_main:
     def check_state_transition(self):
         #TODO: Needs to be fleshed out.
 
+        rospy.loginfo("check_state_transition called!!!!!")
+
         if self.state == PROCESS_STATE.IDLE:
             pass 
             # TODO: Eventually have this function check the status of hals, and notify if any go down? 
