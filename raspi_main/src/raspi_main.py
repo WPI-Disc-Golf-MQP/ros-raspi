@@ -258,11 +258,16 @@ class raspi_main:
 
 
         elif btn.data == UIConstants.INCREASE_TOP_CONVEYOR.name:
-            self.rdt.increase_top_conveyor()
+            self.rdt.new_disc()
         elif btn.data == UIConstants.DECREASE_TOP_CONVEYOR.name:
-            self.rdt.decrease_top_conveyor()
+            self.rdt.remove_last_disc()
         elif btn.data == UIConstants.MOVE_TRACKER_FORWARD.name:
             self.rdt.move_all_measures_over(disc_record(sku="PLACEHOLDER SKU"))
+            # TODO: Eventually this will be called by the "advance" button instead, along with all the movement modules 
+        
+
+        
+
         
 
 
