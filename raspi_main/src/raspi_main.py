@@ -93,6 +93,9 @@ class raspi_main:
             # TODO: Eventually have this function check the status of hals, and notify if any go down? 
             # This is never really called, because the event of this function is only started when a module completes, or it is triggered manuall (in self.advance)
 
+
+        # TODO: running into an issue where the state is still in idle by the time the pi gets here in the code. It is about to move into its first state on the nucleo side, but I could force it into that state early on the py side so it doesn't think its still in idle here? 
+        # TODO: ^^^ ask lewin 
         elif self.state == PROCESS_STATE.ADVANCING: 
             # check to ensure all advancing modules are back in idle 
             if ((self.hal__intake.state.value == 0) and
