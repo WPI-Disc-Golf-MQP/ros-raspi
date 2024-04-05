@@ -18,7 +18,7 @@ class raspi_disc_tracker():
 
     def _filter_non_top_conveyor_records(self):
         discs_excluding_top_conveyor = [obj for obj in self.discs if obj.loc != location.TOP_CONVEYOR]
-        discs_excluding_top_conveyor.sort(key=lambda obj: obj.loc)
+        discs_excluding_top_conveyor.sort(key=lambda obj: obj.loc.value)
         # sorted_discs = sorted(discs_excluding_top_conveyor, key=attrgetter('loc'))
         return discs_excluding_top_conveyor
         # TODO: UNTESTED
