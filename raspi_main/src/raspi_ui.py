@@ -5,7 +5,7 @@ import rospy
 import customtkinter as ctk
 import tkinter as tk
 from tkinter import ttk
-from ui_constants import UIConstants
+from ui_constants import ControlButtons, DebuggingButtons
 
 from std_msgs.msg import String, Empty, Float32
 
@@ -35,12 +35,12 @@ class ui:
         #self.publishers = []
         self.buttons = []
         
-        for i in range(len(UIConstants)):
-            pub_name = str(UIConstants._member_names_[i])
+        for i in range(len(ControlButtons)):
+            pub_name = str(ControlButtons._member_names_[i])
             #self.publishers.append(rospy.Publisher(pub_name, String, queue_size=10))
             self.buttons.append(button := ctk.CTkButton(main_frame, text=pub_name.replace('_'," "), command=partial(self.ui_pub.publish,pub_name),width=300,height=100,font=ctk.CTkFont(size=24)))
             button.grid(row=int(i/3)+2,  column=i%3, padx=5, pady=5)
-        
+
         self.scale_weight = ctk.CTkLabel(main_frame, text="Weight: 0g",font=ctk.CTkFont(size=24, weight="bold"))
         self.scale_weight.grid(row=6, column=1, padx=5, pady=15)
         self.scale_sub = rospy.Subscriber('scale_feedback__weight', Float32, self.scale_callback)
@@ -52,6 +52,12 @@ class ui:
         self.main_conveyor_tracker_readout = ctk.CTkLabel(main_frame, text="readout placeholder",font=ctk.CTkFont(size=24, weight="bold"))
         self.main_conveyor_tracker_readout.grid(row=8, column=1, padx=5, pady=15)
         self.main_conveyor_tracker_readout_sub = rospy.Subscriber('main_conveyor_tracker', String, self.main_conveyor_tracker_readout_callback)
+
+        for i in range(len(DebuggingButtons)):
+            pub_name = str(DebuggingButtons._member_names_[i])
+            #self.publishers.append(rospy.Publisher(pub_name, String, queue_size=10))
+            self.buttons.append(button := ctk.CTkButton(main_frame, text=pub_name.replace('_'," "), command=partial(self.ui_pub.publish,pub_name),width=300,height=100,font=ctk.CTkFont(size=24)))
+            button.grid(row=8+int(i/3)+2,  column=i%3, padx=5, pady=5)
 
         self.app.mainloop()
 
