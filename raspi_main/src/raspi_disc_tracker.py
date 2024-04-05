@@ -60,8 +60,8 @@ class raspi_disc_tracker():
             if item.top_conveyor__sub_loc == self.highest_top_conveyor_sub_loc():
                 a = item
 
-        print("A IS HERE")
-        print(a)
+        # print("A IS HERE")
+        # print(a)
         self.discs.remove(a)
 
         # TODO: allow user to choose removing the closest or furthest 
@@ -120,7 +120,7 @@ if __name__ == "__main__":
     rdt.new_disc()
     rdt.new_disc()
     rdt.new_disc()
-    print(len(rdt._filter_top_conveyor_records()))
+    # print(len(rdt._filter_top_conveyor_records()))
     rdt.move_all_measures_over()
     # print(len(rdt._filter_top_conveyor_records()))
     # rdt.move_all_measures_over()
