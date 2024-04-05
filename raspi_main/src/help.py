@@ -1,7 +1,9 @@
-class foo():
-    def __init__(self,var) -> None:
-        self.abc = var
+from enum import Enum
 
-a = [foo(14),foo(15)]
+class INTAKE_STATE(Enum):
+    INTAKE_IDLE = 0
+    INTAKE_SENDING = 1
+    INTAKE_RECIEVING = 2
 
-print(a.remove(1))
+a = INTAKE_STATE.INTAKE_IDLE
+

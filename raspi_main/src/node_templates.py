@@ -95,10 +95,16 @@ class serial_node(ABC):
     
     def receive_state(self, msg:Int8):
         # try:
+            # -- call the state_change_callback if the state has changed 
             if self.state_change_callback is not None: 
                 rospy.loginfo("[" + self.name + "] State Change: " + str(self.state) + " -> " + str(newstate := self._state_type(int(msg.data))))
                 self.state_change_callback(self.state, msg.data)
             self.state = newstate
+
+            # -- call the completion callback if the state has changed to idle 
+            if msg.data == 0: # this is the 0 value in the enum, by convention the idle state 
+                self.completion_callback(self.name)
+
         # except Exception as e:
         #    rospy.logerr("[" + self.name + "] Error in state message or callback handling: " + str(msg.data))
         #    logging.exception("[" + self.name + "] Error in state message or callback handling")
