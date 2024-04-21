@@ -55,6 +55,7 @@ class ui:
 
         for i in range(len(DebuggingButtons)):
             pub_name = str(DebuggingButtons._member_names_[i])
+            rospy.loginfo(pub_name)
             #self.publishers.append(rospy.Publisher(pub_name, String, queue_size=10))
             self.buttons.append(button := ctk.CTkButton(main_frame, text=pub_name.replace('_'," "), command=partial(self.ui_pub.publish,pub_name),width=300,height=100,font=ctk.CTkFont(size=24)))
             button.grid(row=8+int(i/3)+2,  column=i%3, padx=5, pady=5)
