@@ -272,6 +272,7 @@ class raspi_main:
             self.hal__turntable.start() 
         
         elif btn.data == DebuggingButtons.CONVEYOR_START.name:
+            rospy.loginfo("Start!! Conveyor!!");
             self.hal__main_conveyor.start()
 
         elif btn.data == DebuggingButtons.INTAKE_START.name:
