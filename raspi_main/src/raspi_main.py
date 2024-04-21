@@ -64,6 +64,7 @@ class raspi_main:
         self.HALs: dict[str,serial_node] = {**self.HALs_motion, **self.HALs_measure}
 
         # --- Subscribers ---
+        rospy.loginfo("Setup ui subscriber here: ")
         self.button_b_subscriber = rospy.Subscriber('ui_button', String, self.ui_callback)
 
         # --- Publishers ---
