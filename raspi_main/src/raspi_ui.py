@@ -10,14 +10,6 @@ from ui_constants import ControlButtons, DebuggingButtons
 from std_msgs.msg import String, Empty, Float32
 
 
-def test_function(func, param): 
-    rospy.loginfo("test function called in raspi_ui")
-    rospy.loginfo(param)
-    rospy.loginfo(func)
-
-    func(param)
-    
-
 class ui:
     def __init__(self):
         rospy.init_node('raspi_ui')
@@ -65,8 +57,7 @@ class ui:
         for i in range(len(DebuggingButtons)):
             pub_name = str(DebuggingButtons._member_names_[i])
             #self.publishers.append(rospy.Publisher(pub_name, String, queue_size=10))
-            self.buttons.append(button := ctk.CTkButton(main_frame, text=pub_name.replace('_'," "), command=partial(test_function,self.ui_pub.publish,pub_name),width=300,height=100,font=ctk.CTkFont(size=24)))
-            # self.buttons.append(button := ctk.CTkButton(main_frame, text=pub_name.replace('_'," "), command=partial(self.ui_pub.publish,pub_name),width=300,height=100,font=ctk.CTkFont(size=24)))
+            self.buttons.append(button := ctk.CTkButton(main_frame, text=pub_name.replace('_'," "), command=partial(self.ui_pub.publish,pub_name),width=300,height=100,font=ctk.CTkFont(size=24)))
             button.grid(row=8+int(i/3)+2,  column=i%3, padx=5, pady=5)
 
         self.app.mainloop()

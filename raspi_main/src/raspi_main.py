@@ -64,7 +64,6 @@ class raspi_main:
         self.HALs: dict[str,serial_node] = {**self.HALs_motion, **self.HALs_measure}
 
         # --- Subscribers ---
-        rospy.loginfo("Setup ui subscriber here: ")
         self.button_b_subscriber = rospy.Subscriber('ui_button', String, self.ui_callback)
 
         # --- Publishers ---
@@ -273,7 +272,6 @@ class raspi_main:
             self.hal__turntable.start() 
         
         elif btn.data == DebuggingButtons.CONVEYOR_START.name:
-            rospy.loginfo("Start!! Conveyor!!")
             self.hal__main_conveyor.start()
 
         elif btn.data == DebuggingButtons.INTAKE_START.name:
@@ -281,6 +279,7 @@ class raspi_main:
 
         elif btn.data == DebuggingButtons.FLEX_START.name:
             self.hal__flex.start()
+
 
         # outtake button 
         elif btn.data == DebuggingButtons.BOX_CONVEYOR_START.name:
