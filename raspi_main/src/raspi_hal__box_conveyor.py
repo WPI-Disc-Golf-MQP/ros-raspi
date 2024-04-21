@@ -11,7 +11,7 @@ class BOX_CONVEYOR_STATE(Enum):
     BOX_CONVEYOR_IDLE = 0
     BOX_CONVEYOR_ALIGNING = 1
     BOX_CONVEYOR_ADVANCING = 2
-    BOX_CONVEYOR_ERROR = -1
+    BOX_CONVEYOR_ERROR = 3
 
 class hal_box_conveyor(motion_node):
     def __init__(self, completion_callback:Callable[[str], None]):

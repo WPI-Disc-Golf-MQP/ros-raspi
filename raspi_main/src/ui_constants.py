@@ -13,7 +13,8 @@ class DebuggingButtons(Enum):
 
     MOVE_TRACKER_FORWARD = "MOVE_STORAGE_FORWARD",
 
-    TRISTANS_BUTTON = "run outtake",
+    BOX_CONVEYOR_START = "Start Box Conveyor",
+    OUTTAKE_START = "Start Outtake",
 
 
 class ControlButtons(Enum):

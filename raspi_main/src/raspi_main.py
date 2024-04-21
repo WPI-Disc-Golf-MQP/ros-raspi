@@ -202,6 +202,10 @@ class raspi_main:
 
     # -- TODO: There has got to be a more readable way to do state transitions than just throwing them all in a callback like this. 
     # -- TODO: Ask Lewin if there is any way we can clean this up, and make it more readable as a meta-state diagram, rather than a bunch of callbacks 
+    def _callback__intake_complete(self, node_name:str):
+        rospy.loginfo("* INTAKE motion complete, Notified via callback")
+        self.check_state_transition()
+
     def _callback__main_conveyor_complete(self, node_name:str):
         rospy.loginfo("* MAIN CONVEYOR motion complete, Notified via callback")
         
@@ -210,10 +214,6 @@ class raspi_main:
 
         self.check_state_transition()
     
-    def _callback__intake_complete(self, node_name:str):
-        rospy.loginfo("* INTAKE motion complete, Notified via callback")
-        self.check_state_transition()
-
     def _callback__outtake_complete(self, node_name:str):
         rospy.loginfo("* OUTTAKE motion complete, Notified via callback")
 
@@ -280,10 +280,12 @@ class raspi_main:
         elif btn.data == DebuggingButtons.FLEX_START.name:
             self.hal__flex.start()
 
-
-        elif btn.data == DebuggingButtons.TRISTANS_BUTTON.name:
+        # outtake button 
+        elif btn.data == DebuggingButtons.BOX_CONVEYOR_START.name:
             self.hal__box_conveyor.start()
 
+        elif btn.data == DebuggingButtons.OUTTAKE_START.name:
+            self.hal__outtake.start()
 
         # elif btn.data == UIConstants.MEASURE_START.name:
         #     # if not self.can_start_measurement():

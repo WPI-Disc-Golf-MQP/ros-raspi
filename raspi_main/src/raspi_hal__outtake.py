@@ -9,9 +9,8 @@ from node_templates import *
 
 class OUTTAKE_STATE(Enum):
     OUTTAKE_IDLE = 0
-    OUTTAKE_ALIGNING = 1
-    OUTTAKE_PREPARING = 2
-    OUTTAKE_RELEASING = 3
+    OUTTAKE_SEND = 1
+    OUTTAKE_RECIEVE = 2
 
 
 
@@ -19,12 +18,14 @@ class hal__outtake(motion_node):
     def __init__(self, completion_callback:Callable[[str], None], labeler_callback:Callable[[None], None] = lambda: None):
         super().__init__(NAME="outtake", STATE_TYPE=OUTTAKE_STATE, 
                          STATE_CHANGE_CALLBACK=self.state_change, COMPLETION_CALLBACK=completion_callback)
-        self.labeler_callback = labeler_callback
+
+
+    #     self.labeler_callback = labeler_callback
     
-    def state_change(self, old:int, new:int):
-        if OUTTAKE_STATE(old) == OUTTAKE_STATE.OUTTAKE_ALIGNING and \
-           OUTTAKE_STATE(new) == OUTTAKE_STATE.OUTTAKE_PREPARING: 
-            self.labeler_callback()
+    # def state_change(self, old:int, new:int):
+    #     if OUTTAKE_STATE(old) == OUTTAKE_STATE.OUTTAKE_ALIGNING and \
+    #        OUTTAKE_STATE(new) == OUTTAKE_STATE.OUTTAKE_PREPARING: 
+    #         self.labeler_callback()
     
 if __name__ == '__main__':
     rospy.init_node('hal__outtake')
