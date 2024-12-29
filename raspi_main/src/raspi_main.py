@@ -46,6 +46,7 @@ class raspi_main:
         self.hal__main_conveyor = hal__main_conveyor(self._callback__main_conveyor_complete, self._callback_main_conveyor_ready_for_intake)
         self.hal__intake = hal__intake(self._callback__intake_complete, self._callback_intake_ready_for_main_conveyor)
         self.hal__outtake = hal__outtake(self._callback__outtake_complete)
+        # calls hal__turntable (imported from raspi_hal__turntable) with a callback routine which can be called from hal__turntable
         self.hal__turntable = hal__turntable(self._callback__turntable_complete)
         self.hal__labeler = hal__label_tamper(self._callback__label_tamper_complete)
         self.hal__box_conveyor = hal_box_conveyor(self._callback__box_conveyor_complete)
@@ -56,7 +57,7 @@ class raspi_main:
             'outtake':self.hal__outtake,
             'box_conveyor':self.hal__box_conveyor}
         self.HALs_measure: dict[str,measure_node] = {
-            'turntable':self.hal__turntable,
+            'turntable':self.hal__turntable, ###
             'scale':self.hal__scale,
             'flex':self.hal__flex,
             'height':self.hal__height,
@@ -240,9 +241,15 @@ class raspi_main:
         
     # -- handle incoming messages from UI node -- 
     def ui_callback(self, btn:String):
+        """
+        Handles the incoming messages from the UI node
+        This method is a callback bound to a Subscriber on the /ui_button topic.
+        :param btn    [String]    The string assigned to the UI button in ui_constants and raspi_ui
+        """
         rospy.loginfo("[main] UI Button " + btn.data + " Pressed")
         
-        if btn.data == btn.data == ControlButtons.STOP.name:
+        # Stop all units
+        if btn.data == ControlButtons.STOP.name:
             for hal in self.HALs.values():
                 hal.request(REQUEST.STOP)   
         

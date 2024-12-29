@@ -1,0 +1,5 @@
+<launch>
+    <node name="raspi_main" pkg="ros-raspi" type="test_turntable.py" output="screen" />
+    <!-- <node name="raspi_ui" pkg="ros-raspi" type="raspi_ui.py" output="screen" /> -->
+    <!-- <include file="$(find ros-raspi)/raspi_main/launch/rosserial_3.launch" /> -->
+</launch>
