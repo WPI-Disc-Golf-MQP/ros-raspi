@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+
+##### OBSOLETE - use __main__ code in hal__turntable instead
+
 #from typing import Iterable
 # from raspi_hal__box_conveyor import hal_box_conveyor
 # from raspi_hal__flex import hal_flex
@@ -41,6 +44,14 @@ class raspi_main:
     def __init__(self):
         rospy.init_node('raspi_main')
         rospy.loginfo("raspi_main node started")
+        # self.camera1 = cv2.VideoCapture(0)
+        # self.camera1.set(cv2.CAP_PROP_FRAME_WIDTH, 1200)
+        # self.camera1.set(cv2.CAP_PROP_FRAME_HEIGHT, 1920)
+        # self.camera1.set(cv2.CAP_PROP_FPS, 1)
+        # self.camera2 = cv2.VideoCapture(2)
+        # self.camera2.set(cv2.CAP_PROP_FRAME_WIDTH, 1200)
+        # self.camera2.set(cv2.CAP_PROP_FRAME_HEIGHT, 1920)
+        # self.camera2.set(cv2.CAP_PROP_FPS, 1)
 
         # --- HAL (Hardware Abstraction Layer) ---
 
@@ -302,7 +313,9 @@ class raspi_main:
         Runs the node until Ctrl-C is pressed.
         """
         #rospy.spin()
-        self.hal__turntable.get_images()
+        while True:
+            self.hal__turntable.get_images()
+        #self.hal__turntable.get_images2()
         # rospy.sleep(2)
         # self.hal__turntable.get_images()
 
