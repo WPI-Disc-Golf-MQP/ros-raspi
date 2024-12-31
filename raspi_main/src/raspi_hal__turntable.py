@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from __future__ import annotations
 
 from threading import Timer
 from typing import Callable
@@ -11,9 +12,6 @@ from node_templates import *
 import cv2
 import os
 import numpy
-
-# cam10degrees = cv2.VideoCapture(1)
-# cam35degrees = cv2.VideoCapture(4)
 
 class TURNTABLE_STATE(Enum):
     TURNTABLE_IDLE = 0
@@ -56,65 +54,23 @@ class hal__turntable(measure_node):
         """
         return self.state.value
     
-    # def picture_disc(self,camera):
-    #     """
-    #     ???
-    #     :param camera    [VideoCapture]    A camera being accessed via OpenCV
-    #     """
-    #     # os.mkdir(dirname)
-    #     # for i in range(0, 10):
-    #     #     # cam10degrees.set(cv2.CAP_PROP_FRAME_WIDTH, 1200)
-    #     #     # cam10degrees.set(cv2.CAP_PROP_FRAME_HEIGHT, 1920)
-    #     #     # cam10degrees.set(cv2.CAP_PROP_FPS, 90)
-
-    #     #     cam35degrees.set(cv2.CAP_PROP_FRAME_WIDTH, 1200)
-    #     #     cam35degrees.set(cv2.CAP_PROP_FRAME_HEIGHT, 1920)
-    #     #     cam35degrees.set(cv2.CAP_PROP_FPS, 90)
-
-    #     #     # ret, image = cam10degrees.read()
-    #     #     success, image2 = cam35degrees.read()
-
-    #     #     # name10Degrees = str(10) + ' ' + discName + str(i+1) + '.jpg'
-    #     #     name35Degrees = str(35) + ' ' + discName + str(i+1) + '.jpg'
-
-    #     #     # cv2.imwrite(os.path.join(dirname, name10Degrees), img=image)
-    #     #     cv2.imwrite(os.path.join(dirname, name35Degrees), img=image2)
-
-    #     #     rospy.loginfo(os.path.join(dirname, name35Degrees))
-    #     #     cv2.waitKey(200)
-
-    #     # # cam10degrees.release()
-    #     # cam35degrees.release()
-
-    #     # Grabs, decodes and returns the next video frame.
-    #     success, image = camera.read()
-
-    #     # Set camera properties (why do this after grabbing a frame?)
-    #     # camera.set(cv2.CAP_PROP_FRAME_WIDTH, 1200)
-    #     # camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 1920)
-    #     # camera.set(cv2.CAP_PROP_FPS, 90)
-    #     camera.set(cv2.CAP_PROP_FRAME_WIDTH, 600)
-    #     camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 860)
-    #     camera.set(cv2.CAP_PROP_FPS, 1)
-
-    #     # Show the image in a window. Closes when the user presses a key or 5 seconds pass
-    #     cv2.imshow("image", image)
-    #     cv2.waitKey(5000)
-
-    #     # cv2.imwrite("testPhoto.jpg", image)
-    #     # rospy.loginfo("saving image?")
-
-    #     # Release the video camera and free system resources
-    #     camera.release()
-
-    #     # rospy.loginfo("should be saving images")
-
-    #     # Make sure that all OpenCV windows get closed
-    #     cv2.destroyAllWindows()
+    def picture_disc(self,camera):
+        rospy.loginfo("picture_disc is OBSOLETE, use get_images instead")
     
-    def get_images(self) -> None:
+    
+    def get_images(self) -> tuple[numpy.array, numpy.array, numpy.array]:
         """
         Grabs images from the cameras
+
+        Multiple cameras don't work unless you release a camera before opening the next camera. The
+        documentation says that you should be able to open multiple cameras, use camera.grab() on all
+        of them to grab a frame and then use camera.retrieve() to get the images. This always ended
+        with blank images unless the camera was released before a new camera was used.
+
+        If there are problems with the images, add a sleep before doing the camera.read() to give the
+        camera enough time to set up.
+
+        :return     tuple[numpy.array, numpy.array, numpy.array]    The images from the cameras.
         """
         camera1 = cv2.VideoCapture(self.camera1_device)
         # rospy.sleep(1)
@@ -137,16 +93,7 @@ class hal__turntable(measure_node):
             rospy.loginfo("camera3.read retval is %s", success)
         camera3.release()
 
-        image1 = cv2.resize(image1, (0,0), fx=0.5, fy=0.5)
-        image2 = cv2.resize(image2, (0,0), fx=0.5, fy=0.5)
-        image3 = cv2.resize(image3, (0,0), fx=0.5, fy=0.5)
-
-        if DEBUG:
-            cv2.imshow("Camera 1", image1)
-            cv2.imshow("Camera 2", image2)
-            cv2.imshow("Camera 3", image3)
-            cv2.waitKey(5000)
-            cv2.destroyAllWindows()
+        return [image1, image2, image3]
 
 
     def camera_info(self) -> None:
@@ -173,6 +120,7 @@ class hal__turntable(measure_node):
         rospy.loginfo("Camera 3 Height: %s", camera3.get(cv2.CAP_PROP_FRAME_HEIGHT))
         rospy.loginfo("Camera 3 FPS: %s", camera3.get(cv2.CAP_PROP_FPS))
         camera3.release()
+
 
 if __name__ == '__main__':
     rospy.init_node('hal__turntable')
@@ -203,7 +151,17 @@ if __name__ == '__main__':
         rospy.loginfo("####################")
         rospy.loginfo("# Checking cameras #")
         rospy.loginfo("####################")
-        turntable.get_images()
+        [image1, image2, image3] = turntable.get_images()
+
+        # resize and display images
+        image1 = cv2.resize(image1, (0,0), fx=0.5, fy=0.5)
+        image2 = cv2.resize(image2, (0,0), fx=0.5, fy=0.5)
+        image3 = cv2.resize(image3, (0,0), fx=0.5, fy=0.5)
+        cv2.imshow("Camera 1", image1)
+        cv2.imshow("Camera 2", image2)
+        cv2.imshow("Camera 3", image3)
+        cv2.waitKey(5000)
+        cv2.destroyAllWindows()
 
         # if complete, wait until shutdown
         if (turntable.complete()):
