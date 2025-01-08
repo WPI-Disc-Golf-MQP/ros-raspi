@@ -7,7 +7,7 @@ from raspi_hal__flex import hal_flex
 from raspi_hal__height import hal_height
 from raspi_hal__label_tamper import hal__label_tamper
 from raspi_hal__outtake import hal__outtake
-from raspi_hal__turntable import hal__turntable
+from raspi_hal__photobooth import hal__photobooth
 import rospy
 from std_msgs.msg import String
 import cv2
@@ -46,8 +46,8 @@ class raspi_main:
         self.hal__main_conveyor = hal__main_conveyor(self._callback__main_conveyor_complete, self._callback_main_conveyor_ready_for_intake)
         self.hal__intake = hal__intake(self._callback__intake_complete, self._callback_intake_ready_for_main_conveyor)
         self.hal__outtake = hal__outtake(self._callback__outtake_complete)
-        # calls hal__turntable (imported from raspi_hal__turntable) with a callback routine which can be called from hal__turntable
-        self.hal__turntable = hal__turntable(self._callback__turntable_complete)
+        # calls hal__photobooth (imported from raspi_hal__photobooth) with a callback routine which can be called from hal__photobooth
+        self.hal__photobooth = hal__photobooth(self._callback__photobooth_complete)
         self.hal__labeler = hal__label_tamper(self._callback__label_tamper_complete)
         self.hal__box_conveyor = hal_box_conveyor(self._callback__box_conveyor_complete)
 
@@ -57,7 +57,7 @@ class raspi_main:
             'outtake':self.hal__outtake,
             'box_conveyor':self.hal__box_conveyor}
         self.HALs_measure: dict[str,measure_node] = {
-            'turntable':self.hal__turntable, ###
+            'photobooth':self.hal__photobooth, ###
             'scale':self.hal__scale,
             'flex':self.hal__flex,
             'height':self.hal__height,
@@ -146,7 +146,7 @@ class raspi_main:
         # self.hal__intake.start() 
         # rospy.loginfo("INTAKE BUTTON PRESSED HOORAY")
         
-        # self.hal_turntable.picture_disc("Test", "testDisc")
+        # self.hal_photobooth.picture_disc("Test", "testDisc")
 
 
     # -- checking functions -- 
@@ -188,8 +188,8 @@ class raspi_main:
             disc.height = self._hal__height.get_height()
         self.check_state_transition()
     
-    def _callback__turntable_complete(self, node_name:str):
-        rospy.loginfo("* TURNTABLE motion complete, Notified via callback")
+    def _callback__photobooth_complete(self, node_name:str):
+        rospy.loginfo("* PHOTOBOOTH motion complete, Notified via callback")
         self.check_state_transition()
 
     def _callback__label_tamper_complete(self, node_name:str):
@@ -265,18 +265,18 @@ class raspi_main:
 
         
         elif btn.data == DebuggingButtons.CAMERA10DEGREES.name:
-            self.hal__turntable.picture_disc(cv2.VideoCapture(4))
+            self.hal__photobooth.picture_disc(cv2.VideoCapture(4))
             rospy.loginfo("should be showing camera :)")
 
         elif btn.data == DebuggingButtons.CAMERA35DEGREES.name:
-            self.hal__turntable.picture_disc(cv2.VideoCapture(0))
+            self.hal__photobooth.picture_disc(cv2.VideoCapture(0))
         
         elif btn.data == DebuggingButtons.CAMERA90DEGREES.name:
-            self.hal__turntable.picture_disc(cv2.VideoCapture(2))
+            self.hal__photobooth.picture_disc(cv2.VideoCapture(2))
 
 
-        elif btn.data == DebuggingButtons.TURNTABLE_START.name:
-            self.hal__turntable.start() 
+        elif btn.data == DebuggingButtons.PHOTOBOOTH_START.name:
+            self.hal__photobooth.start() 
         
         elif btn.data == DebuggingButtons.CONVEYOR_START.name:
             self.hal__main_conveyor.start()

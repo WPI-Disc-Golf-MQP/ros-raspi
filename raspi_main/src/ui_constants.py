@@ -6,7 +6,7 @@ class DebuggingButtons(Enum):
     CAMERA35DEGREES = "Camera35Degrees",
     CAMERA90DEGREES = "Camera90Degrees",
 
-    TURNTABLE_START = "Start Turntable",
+    PHOTOBOOTH_START = "Start Photobooth",
     CONVEYOR_START = "Start Conveyor",
     INTAKE_START = "Start Intake",
     FLEX_START = "Start Flex",

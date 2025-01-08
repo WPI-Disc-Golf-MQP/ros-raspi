@@ -13,44 +13,44 @@ import cv2
 import os
 import numpy
 
-class TURNTABLE_STATE(Enum):
-    TURNTABLE_IDLE = 0
-    RAISING = 1
-    SPINNING_PHOTOS = 2
-    LOWERING = 3
+class PHOTOBOOTH_STATE(Enum):
+    PHOTOBOOTH_IDLE = 0
+    PHOTOBOOTH_RISING = 1
+    PHOTOBOOTH_TURNING = 2
+    PHOTOBOOTH_LOWERING = 3
 
 DEBUG: bool = False
 
-# hal__turntable inherits from measure_node, which is imported from node_templates, but has not been implemented
-class hal__turntable(measure_node):
+# hal__photobooth inherits from measure_node, which is imported from node_templates, but has not been implemented
+class hal__photobooth(measure_node):
 
     def __init__(self, completion_callback:Callable[[str], None]=lambda _: None):
         """
         Class constructor
         Can be called with an optional callback function that takes a string and returns nothing
         """
-        rospy.loginfo("hal__turntable node started")
+        
     
         self.camera1_device = 0
         self.camera2_device = 2
         self.camera3_device = 2
 
         # This calls the parent class's (measure_node) constructor, but measure_node has not been implemented
-        super().__init__(NAME="turntable", STATE_TYPE=TURNTABLE_STATE, 
+        super().__init__(NAME="photobooth", STATE_TYPE=PHOTOBOOTH_STATE, 
                          COMPLETION_CALLBACK=completion_callback)
 
 
     def state_update(self, msg:Int8):
         """
         Updates self.state
-        :param msg    [Int8]    The state to assign using TURNTABLE_STATE
+        :param msg    [Int8]    The state to assign using PHOTOBOOTH_STATE
         """
-        self.state = TURNTABLE_STATE(msg.data)
+        self.state = PHOTOBOOTH_STATE(msg.data)
     
     def get_state(self) -> int:
         """
         Gets current state
-        :return     [int]   The current state (to interpret with TURNTABLE_STATE)
+        :return     [int]   The current state (to interpret with PHOTOBOOTH_STATE)
         """
         return self.state.value
     
@@ -123,20 +123,23 @@ class hal__turntable(measure_node):
 
 
 if __name__ == '__main__':
-    rospy.init_node('hal__turntable')
-    rospy.loginfo("hal__turntable node started")
+    rospy.init_node('hal__photobooth')
+    rospy.loginfo("hal__photobooth node started")
 
     DEBUG = True
 
     # clean up on shutdown
-    #rospy.on_shutdown(hal__turntable.shutdown_hook)
+    #rospy.on_shutdown(hal__photobooth.shutdown_hook)
 
     def _completion_callback(_):
-        print("* Movement Complete, State: " + str(turntable.get_state()) + ", notified via callback.")
+        print("* Movement Complete, State: " + str(photobooth.get_state()) + ", notified via callback.")
 
-    turntable = hal__turntable(_completion_callback)
+    photobooth = hal__photobooth(_completion_callback)
 
-    rospy.loginfo("turntable node is running, start tests")
+    rospy.loginfo("photobooth node is running, start tests")
+
+    rospy.loginfo("state state machine")
+    photobooth.start()
 
     while not rospy.is_shutdown():
         # do stuff
@@ -145,13 +148,13 @@ if __name__ == '__main__':
         rospy.loginfo("###################")
         rospy.loginfo("# Get camera info #")
         rospy.loginfo("###################")
-        turntable.camera_info()
+        photobooth.camera_info()
 
         # Check cameras
         rospy.loginfo("####################")
         rospy.loginfo("# Checking cameras #")
         rospy.loginfo("####################")
-        [image1, image2, image3] = turntable.get_images()
+        [image1, image2, image3] = photobooth.get_images()
 
         # resize and display images
         image1 = cv2.resize(image1, (0,0), fx=0.5, fy=0.5)
@@ -164,7 +167,7 @@ if __name__ == '__main__':
         cv2.destroyAllWindows()
 
         # if complete, wait until shutdown
-        if (turntable.complete()):
+        if (photobooth.complete()):
             rospy.sleep(1)
 
     rospy.loginfo("Shutting down...")
