@@ -1,7 +1,7 @@
 <launch>
-    <node name="hal__turntable" pkg="ros-raspi" type="raspi_hal__turntable.py" output="screen" />
+    <node name="hal__photobooth" pkg="ros-raspi" type="raspi_hal__photobooth.py" output="screen" />
     <node name="serial_node" pkg="rosserial_python" type="serial_node.py" output="screen">
-        <param name="port" type="string" value="/dev/ttyACM0"/>
+        <param name="port" type="string" value="/dev/ttyUSB0"/>
         <param name="baud" type="int" value="57600"/>
     </node>
     <!-- <node name="raspi_main" pkg="ros-raspi" type="test_turntable.py" output="screen" /> -->

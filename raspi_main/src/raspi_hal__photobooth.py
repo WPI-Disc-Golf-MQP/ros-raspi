@@ -138,40 +138,44 @@ if __name__ == '__main__':
 
     rospy.loginfo("photobooth node is running, start tests")
 
-    rospy.loginfo("state state machine")
+    # wait for SAMD to start
+    rospy.sleep(5)
+
+    rospy.loginfo("start state machine")   
     photobooth.start()
 
     while not rospy.is_shutdown():
+        rospy.sleep(1)
         # do stuff
 
-        # Get camera info
-        rospy.loginfo("###################")
-        rospy.loginfo("# Get camera info #")
-        rospy.loginfo("###################")
-        photobooth.camera_info()
+    #     # Get camera info
+    #     rospy.loginfo("###################")
+    #     rospy.loginfo("# Get camera info #")
+    #     rospy.loginfo("###################")
+    #     photobooth.camera_info()
 
-        # Check cameras
-        rospy.loginfo("####################")
-        rospy.loginfo("# Checking cameras #")
-        rospy.loginfo("####################")
-        [image1, image2, image3] = photobooth.get_images()
+    #     # Check cameras
+    #     rospy.loginfo("####################")
+    #     rospy.loginfo("# Checking cameras #")
+    #     rospy.loginfo("####################")
+    #     [image1, image2, image3] = photobooth.get_images()
 
-        # resize and display images
-        image1 = cv2.resize(image1, (0,0), fx=0.5, fy=0.5)
-        image2 = cv2.resize(image2, (0,0), fx=0.5, fy=0.5)
-        image3 = cv2.resize(image3, (0,0), fx=0.5, fy=0.5)
-        cv2.imshow("Camera 1", image1)
-        cv2.imshow("Camera 2", image2)
-        cv2.imshow("Camera 3", image3)
-        cv2.waitKey(5000)
-        cv2.destroyAllWindows()
+    #     # resize and display images
+    #     image1 = cv2.resize(image1, (0,0), fx=0.5, fy=0.5)
+    #     image2 = cv2.resize(image2, (0,0), fx=0.5, fy=0.5)
+    #     image3 = cv2.resize(image3, (0,0), fx=0.5, fy=0.5)
+    #     cv2.imshow("Camera 1", image1)
+    #     cv2.imshow("Camera 2", image2)
+    #     cv2.imshow("Camera 3", image3)
+    #     cv2.waitKey(5000)
+    #     cv2.destroyAllWindows()
 
-        # if complete, wait until shutdown
-        if (photobooth.complete()):
-            rospy.sleep(1)
+    #     # if complete, wait until shutdown
+    #     if (photobooth.complete()):
+    #         rospy.sleep(1)
 
-    rospy.loginfo("Shutting down...")
-    cv2.destroyAllWindows()
+    # rospy.loginfo("Shutting down...")
+    # cv2.destroyAllWindows()
     
 
 
