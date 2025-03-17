@@ -1,5 +1,5 @@
 <launch>
     <node name="raspi_main" pkg="ros-raspi" type="raspi_main.py" output="screen" />
     <node name="raspi_ui" pkg="ros-raspi" type="raspi_ui.py" output="screen" />
-    <include file="$(find ros-raspi)/raspi_main/launch/rosserial_2.launch" />
+    <include file="$(find ros-raspi)/raspi_main/launch/rosserial_1_nucleo.launch" />
 </launch>
