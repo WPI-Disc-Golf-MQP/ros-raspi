@@ -1,36 +1,31 @@
 #!/usr/bin/env python3
 
-
-from typing import Iterable
-from raspi_hal__box_conveyor import hal_box_conveyor
-from raspi_hal__flex import hal_flex
-from raspi_hal__height import hal_height
-from raspi_hal__label_tamper import hal__label_tamper
-from raspi_hal__outtake import hal__outtake
-from raspi_hal__turntable import hal__turntable
 import rospy
 from std_msgs.msg import String
+
+from typing import Iterable
 import cv2
-from raspi_hal__scale import hal__scale
-from raspi_hal__main_conveyor import hal__main_conveyor
-from raspi_hal__intake import hal__intake
+
+from raspi_hal__intake import hal__intake, INTAKE_STATE
+from raspi_hal__main_conveyor import hal__main_conveyor, CONVEYOR_STATE
+from raspi_hal__turntable import hal__turntable, TURNTABLE_STATE
+# from raspi_hal__height import hal_height, HEIGHT_STATE
+from raspi_hal__flex import hal_flex, FLEX_STATE
+from raspi_hal__scale import hal__scale, SCALE_STATE
+from raspi_hal__outtake import hal__outtake, OUTTAKE_STATE
+from raspi_hal__box_conveyor import hal_box_conveyor, BOX_CONVEYOR_STATE
+# from raspi_hal__label_tamper import hal__label_tamper
 
 from disc_record import *
 from node_templates import *
 from ui_constants import DebuggingButtons, ControlButtons
-
 from raspi_disc_tracker import raspi_disc_tracker as rdt
 
 
 class PROCESS_STATE(Enum):
     IDLE = 0,
-    MEASURING = 1,
-    ADVANCING = 2,
-
-    # MOVING_OUTTAKE_TO_BOX = 2,
-    # MOVING_MAIN_CONVEYOR = 3,
-    # MOVING_INTAKE_TOP_CONVEYOR = 4,
-# MOTION_STATES = [PROCESS_STATE.MOVING_OUTTAKE_TO_BOX, PROCESS_STATE.MOVING_MAIN_CONVEYOR, PROCESS_STATE.MOVING_INTAKE_TOP_CONVEYOR]
+    MOVING = 1,
+    MEASURING = 2
 
 class raspi_main:
     def __init__(self):
@@ -41,13 +36,13 @@ class raspi_main:
 
         self.hal__scale = hal__scale(self._callback__scale_complete)
         self.hal__flex = hal_flex(self._callback__flex_complete)
-        self.hal__height = hal_height(self._callback__height_complete)
+        # self.hal__height = hal_height(self._callback__height_complete)
         
         self.hal__main_conveyor = hal__main_conveyor(self._callback__main_conveyor_complete, self._callback_main_conveyor_ready_for_intake)
         self.hal__intake = hal__intake(self._callback__intake_complete, self._callback_intake_ready_for_main_conveyor)
         self.hal__outtake = hal__outtake(self._callback__outtake_complete)
         self.hal__turntable = hal__turntable(self._callback__turntable_complete)
-        self.hal__labeler = hal__label_tamper(self._callback__label_tamper_complete)
+        # self.hal__labeler = hal__label_tamper(self._callback__label_tamper_complete)
         self.hal__box_conveyor = hal_box_conveyor(self._callback__box_conveyor_complete)
 
         self.HALs_motion: dict[str,motion_node] = {
@@ -86,7 +81,7 @@ class raspi_main:
     def check_state_transition(self):
         #TODO: Needs to be fleshed out.
 
-        rospy.loginfo("check_state_transition called!!!!!")
+        # rospy.loginfo("check_state_transition called!!!!!")
 
         if self.state == PROCESS_STATE.IDLE:
             pass 
@@ -96,25 +91,26 @@ class raspi_main:
 
         # TODO: running into an issue where the state is still in idle by the time the pi gets here in the code. It is about to move into its first state on the nucleo side, but I could force it into that state early on the py side so it doesn't think its still in idle here? 
         # TODO: ^^^ ask lewin 
-        elif self.state == PROCESS_STATE.ADVANCING: 
+        elif self.state == PROCESS_STATE.MOVING: 
             # check to ensure all advancing modules are back in idle 
-            if ((self.hal__intake.state.value == 0) and
-                (self.hal__main_conveyor.state.value == 0) and
-                (self.hal__outtake.state.value == 0) and
-                (self.hal__box_conveyor.state.value == 0) 
-                   ):
+            if ((self.hal__intake.state == INTAKE_STATE.INTAKE_IDLE) and
+                (self.hal__main_conveyor.state == CONVEYOR_STATE.CONVEYOR_IDLE) and
+                (self.hal__outtake.state == OUTTAKE_STATE.OUTTAKE_IDLE)
+                # exclude outtake for now
+                # and (self.hal__box_conveyor.state == BOX_CONVEYOR_STATE.BOX_CONVEYOR_IDLE) 
+                ):
                 self.state = PROCESS_STATE.MEASURING  
                 print("moved to measuring")                   
 
         elif self.state == PROCESS_STATE.MEASURING:
             if all([hal.complete() for hal in self.HALs_measure.values()]):
-                self.state = PROCESS_STATE.MOVING_OUTTAKE_TO_BOX
+                self.state = PROCESS_STATE.MOVING
                 # TODO: Start outtake process
 
-        elif self.state == PROCESS_STATE.MOVING_INTAKE_TOP_CONVEYOR:
-            if all([hal.complete() for hal in (self.hal__intake, self.hal__main_conveyor)]):
-                self.state = PROCESS_STATE.MEASURING
-                self.start_measurement()
+        # elif self.state == PROCESS_STATE.MOVING_INTAKE_TOP_CONVEYOR:
+        #     if all([hal.complete() for hal in (self.hal__intake, self.hal__main_conveyor)]):
+        #         self.state = PROCESS_STATE.MEASURING
+        #         self.start_measurement()
         
         rospy.loginfo("check_state_transition called. Current meta machine state is: "+str(self.state))    
 
@@ -126,7 +122,7 @@ class raspi_main:
         #     return
 
         # -- now we are ready to move the discs 
-        self.state = PROCESS_STATE.ADVANCING
+        self.state = PROCESS_STATE.MOVING
 
         #TODO: Eventually start the box conveyor, and that will set off a chain of events through the callbacks box -> outtake -> main -> intake -> main 
         # for now, since module C is broken, starting farther up the chain 
@@ -134,9 +130,6 @@ class raspi_main:
 
         self.check_state_transition() # this will be called again by the hal callbacks 
 
-
-
-        
         # - move the outtake, wait for response 
         # - move the conveyor, wait for response 
         # self.hal__main_conveyor.start()
@@ -195,11 +188,6 @@ class raspi_main:
         rospy.loginfo("* LABELER motion complete, Notified via callback")
         self.check_state_transition()
 
-
-
-
-
-
     # -- TODO: There has got to be a more readable way to do state transitions than just throwing them all in a callback like this. 
     # -- TODO: Ask Lewin if there is any way we can clean this up, and make it more readable as a meta-state diagram, rather than a bunch of callbacks 
     def _callback__intake_complete(self, node_name:str):
@@ -209,7 +197,7 @@ class raspi_main:
     def _callback__main_conveyor_complete(self, node_name:str):
         rospy.loginfo("* MAIN CONVEYOR motion complete, Notified via callback")
         
-        if self.state == PROCESS_STATE.ADVANCING: # if we are in the advancing mode, not staying in idle for testing # start up the next module 
+        if self.state == PROCESS_STATE.MOVING: # if we are in the advancing mode, not staying in idle for testing # start up the next module 
             pass # done with advancing! 
 
         self.check_state_transition()
@@ -217,7 +205,7 @@ class raspi_main:
     def _callback__outtake_complete(self, node_name:str):
         rospy.loginfo("* OUTTAKE motion complete, Notified via callback")
 
-        if self.state == PROCESS_STATE.ADVANCING: # if we are in the advancing mode, not staying in idle for testing # start up the next module 
+        if self.state == PROCESS_STATE.MOVING: # if we are in the advancing mode, not staying in idle for testing # start up the next module 
             self.hal__main_conveyor.start() 
 
         self.check_state_transition()

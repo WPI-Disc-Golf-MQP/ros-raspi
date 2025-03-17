@@ -7,7 +7,7 @@ import tkinter as tk
 from tkinter import ttk
 from ui_constants import ControlButtons, DebuggingButtons
 
-from std_msgs.msg import String, Empty, Float32
+from std_msgs.msg import String, Empty, Float32 
 
 
 class ui:
