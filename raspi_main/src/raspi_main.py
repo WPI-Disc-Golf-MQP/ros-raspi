@@ -218,7 +218,7 @@ class raspi_main:
     def _callback_main_conveyor_ready_for_intake(self):
             rospy.loginfo("* MAIN CONVEYOR ready for intake, Notified via callback")
             self.hal__intake.start()
-            self.state = PROCESS_STATE.MOVING_INTAKE_TOP_CONVEYOR
+            # self.state = PROCESS_STATE.MOVING_INTAKE_TOP_CONVEYOR
 
     def _callback_intake_ready_for_main_conveyor(self):
             rospy.loginfo("* INTAKE ready for main conveyor, Notified via callback")
