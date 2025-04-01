@@ -53,9 +53,9 @@ class raspi_main:
         self.HALs_measure: dict[str,measure_node] = {
             'turntable':self.hal__turntable,
             'scale':self.hal__scale,
-            'flex':self.hal__flex,
-            'height':self.hal__height,
-            'labeler':self.hal__labeler}
+            'flex':self.hal__flex}
+            # 'height':self.hal__height,
+            # 'labeler':self.hal__labeler}
         self.HALs: dict[str,serial_node] = {**self.HALs_motion, **self.HALs_measure}
 
         # --- Subscribers ---
@@ -81,7 +81,7 @@ class raspi_main:
     def check_state_transition(self):
         #TODO: Needs to be fleshed out.
 
-        # rospy.loginfo("check_state_transition called!!!!!")
+        rospy.loginfo("check_state_transition called!!!!!")
 
         if self.state == PROCESS_STATE.IDLE:
             pass 
@@ -165,19 +165,19 @@ class raspi_main:
     def _callback__scale_complete(self, node_name:str):
         rospy.loginfo("* SCALE measurement complete, Notified via callback")
         if disc := self.get_disc_by_location(location.MAIN_CONVAYOR__SCALE):
-            disc.weight = self._hal__scale.get_weight()
+            disc.weight = self.hal__scale.get_weight()
         self.check_state_transition()
     
     def _callback__flex_complete(self, node_name:str):
         rospy.loginfo("* FLEX measurement complete, Notified via callback")
         if disc := self.get_disc_by_location(location.MAIN_CONVAYOR__FLEXIBILITY):
-            disc.flex = self._hal__flex.get_flex()
+            disc.flex = self.hal__flex.get_flex()
         self.check_state_transition()
     
     def _callback__height_complete(self, node_name:str):
         rospy.loginfo("* HEIGHT measurement complete, Notified via callback")
         if disc := self.get_disc_by_location(location.MAIN_CONVAYOR__FLEXIBILITY):
-            disc.height = self._hal__height.get_height()
+            disc.height = self.hal__height.get_height()
         self.check_state_transition()
     
     def _callback__turntable_complete(self, node_name:str):
