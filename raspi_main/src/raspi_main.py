@@ -83,7 +83,7 @@ class raspi_main:
     def check_state_transition(self):
         #TODO: Needs to be fleshed out.
 
-        rospy.logdebug("check_state_transition called!!!!! Current meta machine state is: " + str(self.state))
+        rospy.logwarn("check_state_transition called!!!!! Current meta machine state is: " + str(self.state))
 
         if self.state == PROCESS_STATE.IDLE:
             pass 
@@ -107,8 +107,8 @@ class raspi_main:
                         hal.start()                  
 
         elif self.state == PROCESS_STATE.MEASURING:
-            rospy.logdebug(String([hal for hal in self.HALs_measure if hal.is_online()]))
-            rospy.logdebug(String([hal for hal in self.HALs_measure.values() if hal.is_online()]))
+            rospy.logwarn(String([hal for hal in self.HALs_measure if hal.is_online()]))
+            rospy.logwarn(String([hal for hal in self.HALs_measure.values() if hal.is_online()]))
             if all([hal.complete() for hal in [hal for hal in self.HALs_measure.values() if hal.is_online()]]):
                 self.state = PROCESS_STATE.MOVING
                 rospy.loginfo("entering MOVING state")
@@ -119,7 +119,7 @@ class raspi_main:
         #         self.state = PROCESS_STATE.MEASURING
         #         self.start_measurement()
         
-        rospy.logdebug("check_state_transition called. Current meta machine state is: " + str(self.state))    
+        rospy.logwarn("check_state_transition called. Current meta machine state is: " + str(self.state))    
 
 
     def advance(self): 
