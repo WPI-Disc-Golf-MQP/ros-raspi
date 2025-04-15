@@ -103,6 +103,8 @@ class raspi_main:
                 rospy.loginfo("entering MEASURING state")                   
 
         elif self.state == PROCESS_STATE.MEASURING:
+            rospy.logdebug(String([hal for hal in self.HALs_measure if hal.is_online()]))
+            rospy.logdebug(String([hal for hal in self.HALs_measure.values() if hal.is_online()]))
             if all([hal.complete() for hal in [hal for hal in self.HALs_measure.values() if hal.is_online()]]):
                 self.state = PROCESS_STATE.MOVING
                 rospy.loginfo("entering MOVING state")
