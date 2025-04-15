@@ -47,13 +47,15 @@ class raspi_main:
 
         self.HALs_motion: dict[str,motion_node] = {
             'main_conveyor':self.hal__main_conveyor, 
-            'intake':self.hal__intake,
-            'outtake':self.hal__outtake,
-            'box_conveyor':self.hal__box_conveyor}
+            'intake':self.hal__intake
+        }
         self.HALs_measure: dict[str,measure_node] = {
             'turntable':self.hal__turntable,
             'scale':self.hal__scale,
-            'flex':self.hal__flex}
+            'flex':self.hal__flex,
+            'outtake':self.hal__outtake,
+            'box_conveyor':self.hal__box_conveyor
+            }
             # 'height':self.hal__height,
             # 'labeler':self.hal__labeler}
         self.HALs: dict[str,serial_node] = {**self.HALs_motion, **self.HALs_measure}
@@ -94,8 +96,7 @@ class raspi_main:
         elif self.state == PROCESS_STATE.MOVING: 
             # check to ensure all advancing modules are back in idle 
             if ((self.hal__intake.state == INTAKE_STATE.INTAKE_IDLE) and
-                (self.hal__main_conveyor.state == CONVEYOR_STATE.CONVEYOR_IDLE) and
-                (self.hal__outtake.state == OUTTAKE_STATE.OUTTAKE_IDLE)
+                (self.hal__main_conveyor.state == CONVEYOR_STATE.CONVEYOR_IDLE)
                 # exclude outtake for now
                 # and (self.hal__box_conveyor.state == BOX_CONVEYOR_STATE.BOX_CONVEYOR_IDLE) 
                 ):
