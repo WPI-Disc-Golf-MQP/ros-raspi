@@ -100,11 +100,12 @@ class raspi_main:
                 # and (self.hal__box_conveyor.state == BOX_CONVEYOR_STATE.BOX_CONVEYOR_IDLE) 
                 ):
                 self.state = PROCESS_STATE.MEASURING  
-                print("moved to measuring")                   
+                rospy.loginfo("entering MEASURING state")                   
 
         elif self.state == PROCESS_STATE.MEASURING:
-            if all([hal.complete() for hal in self.HALs_measure.values()]):
+            if all([hal.complete() for hal in [hal for hal in self.HALs_measure.values() if hal.is_online()]]):
                 self.state = PROCESS_STATE.MOVING
+                rospy.loginfo("entering MOVING state")
                 # TODO: Start outtake process
 
         # elif self.state == PROCESS_STATE.MOVING_INTAKE_TOP_CONVEYOR:
