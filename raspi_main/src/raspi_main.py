@@ -83,7 +83,7 @@ class raspi_main:
     def check_state_transition(self):
         #TODO: Needs to be fleshed out.
 
-        rospy.loginfo("check_state_transition called!!!!!")
+        rospy.logdebug("check_state_transition called!!!!! Current meta machine state is: " + str(self.state)")
 
         if self.state == PROCESS_STATE.IDLE:
             pass 
@@ -119,7 +119,7 @@ class raspi_main:
         #         self.state = PROCESS_STATE.MEASURING
         #         self.start_measurement()
         
-        rospy.loginfo("check_state_transition called. Current meta machine state is: "+str(self.state))    
+        rospy.logdebug("check_state_transition called. Current meta machine state is: " + str(self.state))    
 
 
     def advance(self): 
