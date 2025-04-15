@@ -100,7 +100,10 @@ class raspi_main:
                 # and (self.hal__box_conveyor.state == BOX_CONVEYOR_STATE.BOX_CONVEYOR_IDLE) 
                 ):
                 self.state = PROCESS_STATE.MEASURING  
-                rospy.loginfo("entering MEASURING state")                   
+                rospy.loginfo("entering MEASURING state") 
+                for hal in self.HALs_measure.values():
+                    if hal.is_online():
+                        hal.start()                  
 
         elif self.state == PROCESS_STATE.MEASURING:
             rospy.logdebug(String([hal for hal in self.HALs_measure if hal.is_online()]))
