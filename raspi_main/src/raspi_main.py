@@ -107,7 +107,6 @@ class raspi_main:
                         hal.start()                  
 
         elif self.state == PROCESS_STATE.MEASURING:
-            rospy.logwarn(String([hal for hal in self.HALs_measure if hal.is_online()]))
             rospy.logwarn(String([hal for hal in self.HALs_measure.values() if hal.is_online()]))
             if all([hal.complete() for hal in [hal for hal in self.HALs_measure.values() if hal.is_online()]]):
                 self.state = PROCESS_STATE.MOVING
