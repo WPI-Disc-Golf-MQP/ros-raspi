@@ -261,6 +261,7 @@ class raspi_main:
             self.hal__turntable.start() 
         
         elif btn.data == DebuggingButtons.CONVEYOR_START.name:
+            self.state = PROCESS_STATE.MOVING  # TODO: fix buttons so there's only one start button
             self.hal__main_conveyor.start()
 
         elif btn.data == DebuggingButtons.INTAKE_START.name:
