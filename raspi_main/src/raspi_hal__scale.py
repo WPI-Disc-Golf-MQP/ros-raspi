@@ -37,7 +37,7 @@ class hal__scale(measure_node):
         return self.weight
         
     def complete(self) -> bool:
-        return super().complete() and self.valid_measurement()
+        return super().complete() # and self.valid_measurement()
     
 if __name__ == '__main__':
     rospy.init_node('hal__scale')
