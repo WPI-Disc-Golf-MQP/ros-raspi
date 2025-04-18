@@ -1,0 +1,4 @@
+<launch>
+    <node name="test_cameras" pkg="ros-raspi" type="test_cameras.py" output="screen" />
+    <node name="cameras" pkg="ros-raspi" type="cameras.py" output="screen" />
+</launch>
