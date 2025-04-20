@@ -6,6 +6,7 @@ from typing import Callable
 
 import rospy
 from std_msgs.msg import Int8, Float32, Bool
+from std_srvs.srv import Trigger
 
 from node_templates import *
 
@@ -38,6 +39,9 @@ class hal__photobooth(measure_node):
         # This calls the parent class's (measure_node) constructor, but measure_node has not been implemented
         super().__init__(NAME="photobooth", STATE_TYPE=PHOTOBOOTH_STATE, 
                          COMPLETION_CALLBACK=completion_callback)
+        
+        # Create a subscriber that listens for when to take pictures
+        rospy.Subscriber('photobooth_trigger', Bool, self.trigger_photobooth_callback)
 
 
     def state_update(self, msg:Int8):
@@ -56,6 +60,16 @@ class hal__photobooth(measure_node):
     
     def picture_disc(self,camera):
         rospy.loginfo("picture_disc is OBSOLETE, use get_images instead")
+    
+    def trigger_photobooth_callback(self, msg):
+        if msg.data:
+            # Call the service to take a photo
+            take_photo = rospy.ServiceProxy('cameras_takephoto', Trigger)
+            response = take_photo()
+            if response.success:
+                rospy.loginfo("Photo taken successfully!")
+            else:
+                rospy.loginfo("Failed to take photo.")
     
     
     def get_images(self) -> tuple[numpy.array, numpy.array, numpy.array]:
@@ -148,34 +162,34 @@ if __name__ == '__main__':
         rospy.sleep(1)
         # do stuff
 
-    # Get camera info
-        rospy.loginfo("###################")
-        rospy.loginfo("# Get camera info #")
-        rospy.loginfo("###################")
-        photobooth.camera_info()
+    #     # Get camera info
+    #     rospy.loginfo("###################")
+    #     rospy.loginfo("# Get camera info #")
+    #     rospy.loginfo("###################")
+    #     photobooth.camera_info()
 
-        # Check cameras
-        rospy.loginfo("####################")
-        rospy.loginfo("# Checking cameras #")
-        rospy.loginfo("####################")
-        [image1, image2, image3] = photobooth.get_images()
+    #     # Check cameras
+    #     rospy.loginfo("####################")
+    #     rospy.loginfo("# Checking cameras #")
+    #     rospy.loginfo("####################")
+    #     [image1, image2, image3] = photobooth.get_images()
 
-        # resize and display images
-        image1 = cv2.resize(image1, (0,0), fx=0.5, fy=0.5)
-        image2 = cv2.resize(image2, (0,0), fx=0.5, fy=0.5)
-        image3 = cv2.resize(image3, (0,0), fx=0.5, fy=0.5)
-        cv2.imshow("Camera 1", image1)
-        cv2.imshow("Camera 2", image2)
-        cv2.imshow("Camera 3", image3)
-        cv2.waitKey(5000)
-        cv2.destroyAllWindows()
+    #     # resize and display images
+    #     image1 = cv2.resize(image1, (0,0), fx=0.5, fy=0.5)
+    #     image2 = cv2.resize(image2, (0,0), fx=0.5, fy=0.5)
+    #     image3 = cv2.resize(image3, (0,0), fx=0.5, fy=0.5)
+    #     cv2.imshow("Camera 1", image1)
+    #     cv2.imshow("Camera 2", image2)
+    #     cv2.imshow("Camera 3", image3)
+    #     cv2.waitKey(5000)
+    #     cv2.destroyAllWindows()
 
-        # if complete, wait until shutdown
-        if (photobooth.complete()):
-            rospy.sleep(1)
+    #     # if complete, wait until shutdown
+    #     if (photobooth.complete()):
+    #         rospy.sleep(1)
 
-    rospy.loginfo("Shutting down...")
-    cv2.destroyAllWindows()
+    # rospy.loginfo("Shutting down...")
+    # cv2.destroyAllWindows()
     
 
 
