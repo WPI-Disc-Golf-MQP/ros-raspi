@@ -12,10 +12,14 @@ class BOX_CONVEYOR_STATE(Enum):
     BOX_CONVEYOR_ALIGNING = 1
     BOX_CONVEYOR_ADVANCING = 2
     BOX_CONVEYOR_ERROR = 3
+    BOX_CONVEYOR_EJECT_BOX = 4
 
 class hal_box_conveyor(motion_node):
     def __init__(self, completion_callback:Callable[[str], None]):
         super().__init__(NAME="box_conveyor", STATE_TYPE=BOX_CONVEYOR_STATE, COMPLETION_CALLBACK=completion_callback)
+
+    def state_update(self, msg:Int8):
+        self.state = BOX_CONVEYOR_STATE(msg.data)
     
 if __name__ == '__main__':
     rospy.init_node('hal_box_conveyor')

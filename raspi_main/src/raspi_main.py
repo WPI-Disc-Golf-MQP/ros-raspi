@@ -3,6 +3,7 @@
 
 from typing import Iterable
 from raspi_hal__box_conveyor import hal_box_conveyor
+from raspi_hal__backing import hal__backing
 from raspi_hal__flex import hal_flex
 from raspi_hal__height import hal_height
 from raspi_hal__label_tamper import hal__label_tamper
@@ -49,12 +50,14 @@ class raspi_main:
         self.hal__turntable = hal__turntable(self._callback__turntable_complete)
         self.hal__labeler = hal__label_tamper(self._callback__label_tamper_complete)
         self.hal__box_conveyor = hal_box_conveyor(self._callback__box_conveyor_complete)
+        self.hal__backing = hal__backing(self._callback__backing_complete)
 
         self.HALs_motion: dict[str,motion_node] = {
             'main_conveyor':self.hal__main_conveyor, 
             'intake':self.hal__intake,
             'outtake':self.hal__outtake,
-            'box_conveyor':self.hal__box_conveyor}
+            'box_conveyor':self.hal__box_conveyor,
+            'backing':self.hal__backing}
         self.HALs_measure: dict[str,measure_node] = {
             'turntable':self.hal__turntable,
             'scale':self.hal__scale,
@@ -225,6 +228,10 @@ class raspi_main:
     def _callback__box_conveyor_complete(self, node_name:str):
         rospy.loginfo("* BOX CONVEYOR motion complete, Notified via callback")
         self.check_state_transition()
+
+    def _callback__backing_complete(self, node_name:str):
+        rospy.loginfo("* BACKING motion complete, Notified via callback")
+        self.check_state_transition()
         
     # this is part of a side interaction between the main conveyor and intake, main -> intake -> main
     def _callback_main_conveyor_ready_for_intake(self):
@@ -287,6 +294,10 @@ class raspi_main:
 
         elif btn.data == DebuggingButtons.OUTTAKE_START.name:
             self.hal__outtake.start()
+        
+        elif btn.data == DebuggingButtons.BOX_CONVEYOR_EJECT_BOX.name:
+            self.hal__box_conveyor.update_state(4)
+            self.hal__backing.update_state(1)
 
         # elif btn.data == UIConstants.MEASURE_START.name:
         #     # if not self.can_start_measurement():

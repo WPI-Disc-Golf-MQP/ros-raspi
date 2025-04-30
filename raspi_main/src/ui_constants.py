@@ -15,6 +15,7 @@ class DebuggingButtons(Enum):
 
     BOX_CONVEYOR_START = "Start Box Conveyor",
     OUTTAKE_START = "Start Outtake",
+    BOX_CONVEYOR_EJECT_BOX = "Eject Box",
 
 
 class ControlButtons(Enum):
